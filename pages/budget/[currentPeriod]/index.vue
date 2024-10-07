@@ -3,7 +3,7 @@
     <div class="nav box">
       <nuxt-link class="btn" to="/">&lt; Budgets</nuxt-link>
       <button class="nav-view btn" @click="toggleView()">
-        Show {{ currentView === "Ledger" ? "overview" : "ledger" }}
+        Show {{ currentView === "Ledger" ? "summary" : "ledger" }}
       </button>
     </div>
 
