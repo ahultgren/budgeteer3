@@ -21,4 +21,26 @@ export default defineNuxtConfig({
     },
   },
   modules: ["@vite-pwa/nuxt"],
+  pwa: {
+    manifest: {
+      name: 'Budgeteer',
+      short_name: 'Budgeteer',
+      lang: 'en',
+    },
+    workbox: {
+      cachingExtensions: '@/plugins/workbox-sync.js',
+      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,json,svg,webp,vue}'],
+      runtimeCaching: [
+        {
+          urlPattern: '/',
+          handler: 'NetworkFirst',
+        }
+      ]
+    },
+    devOptions: {
+      enabled: true,
+      type: "module"
+    }
+  }
 });
