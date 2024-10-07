@@ -1,5 +1,6 @@
 {
-  "name": "nuxt-app",
+  "name": "budgeteer",
+  "author": "Andreas Hultgren",
   "private": true,
   "type": "module",
   "scripts": {
