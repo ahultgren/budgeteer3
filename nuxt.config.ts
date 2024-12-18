@@ -10,7 +10,7 @@ export default defineNuxtConfig({
           name: "viewport",
           content: "width=device-width, initial-scale=1, maximum-scale=1",
         },
-        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "mobile-web-app-capable", content: "yes" },
         {
           hid: "description",
           name: "description",
@@ -22,6 +22,7 @@ export default defineNuxtConfig({
   },
   modules: ["@vite-pwa/nuxt"],
   pwa: {
+    scope: "/",
     manifest: {
       name: "Budgeteer",
       short_name: "Budgeteer",
@@ -86,26 +87,23 @@ export default defineNuxtConfig({
     workbox: {
       navigateFallback: "/",
       globPatterns: ["**/*.{js,css,html,json,svg,webp,vue}"],
-      runtimeCaching: [
-        {
-          urlPattern: "/",
-          handler: "NetworkFirst",
-          options: {
-            cacheName: "html-cache",
-          },
-        },
-        {
-          urlPattern: /\.(?:js|css|html|json|svg|webp|vue)$/,
-          handler: "StaleWhileRevalidate",
-          options: {
-            cacheName: "assets-cache",
-          },
-        },
-      ],
     },
     devOptions: {
       enabled: true,
       type: "module",
+    },
+  },
+  nitro: {
+    prerender: {
+      autoSubfolderIndex: true,
+      concurrency: 4,
+      interval: 1,
+      failOnError: true,
+      crawlLinks: true,
+      ignore: [],
+      routes: ["/"],
+      retry: 3,
+      retryDelay: 1000,
     },
   },
 });
