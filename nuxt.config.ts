@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       start_url: "/",
       display: "standalone",
       background_color: "#ffffff",
-      theme_color: "#4DBA87",
+      theme_color: "#6A80E6",
       icons: [
         {
           src: "icons/icon-48x48.png",
