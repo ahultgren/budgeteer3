@@ -27,6 +27,13 @@ html {
   margin: 0;
 }
 
+/* TODO Implement modular/scoped css */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .button--green {
   display: inline-block;
   border-radius: 4px;

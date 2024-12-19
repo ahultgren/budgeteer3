@@ -12,10 +12,10 @@ const props = defineProps({
 
 <style lang="less" scoped>
 .ledger {
-  font-family: monospace;
+  flex-grow: 1;
   width: 100%;
   position: relative;
-  padding-bottom: 300px;
+  font-family: monospace;
 }
 .input {
   width: 100%;
