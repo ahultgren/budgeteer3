@@ -16,6 +16,7 @@ const props = defineProps({
   width: 100%;
   position: relative;
   font-family: monospace;
+  backface-visibility: hidden;
 }
 .input {
   width: 100%;

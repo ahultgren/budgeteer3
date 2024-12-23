@@ -30,6 +30,8 @@ const props = defineProps({
 <style lang="less">
 .overview {
   font-family: monospace;
+  backface-visibility: hidden;
+  flex-grow: 1;
 
   &-category,
   &-total {

@@ -7,7 +7,22 @@
       </button>
     </div>
 
-    <component :is="currentView" :period="periods[currentPeriod]"></component>
+    <div class="main">
+      <Flip>
+        <template #front>
+          <Ledger
+            v-if="currentView === 'Ledger'"
+            :period="periods[currentPeriod]"
+          ></Ledger>
+        </template>
+        <template #back>
+          <Overview
+            v-if="currentView === 'Overview'"
+            :period="periods[currentPeriod]"
+          ></Overview>
+        </template>
+      </Flip>
+    </div>
   </div>
 </template>
 
@@ -81,13 +96,18 @@ button {
     float: right;
   }
 }
+.main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  position: relative;
+}
 
 .box {
   padding: 10px;
 }
 .btn {
-  -moz-appearance: none;
-  -webkit-appearance: none;
+  appearance: none;
   background: transparent;
   border: none;
   padding: 2px 0px;
