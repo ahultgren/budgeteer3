@@ -17,7 +17,15 @@ export default defineNuxtConfig({
           content: process.env.npm_package_description || "",
         },
       ],
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      link: [
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        {
+          rel: "apple-touch-startup-image",
+          media:
+            "screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)",
+          href: "splash_screens/iPhone_11__iPhone_XR_portrait.png",
+        },
+      ],
     },
   },
   modules: ["@vite-pwa/nuxt"],
