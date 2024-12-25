@@ -26,10 +26,17 @@ export default defineNuxtConfig({
     manifest: {
       name: "Budgeteer",
       short_name: "Budgeteer",
+      description: "Keep track of your expenses",
+      launch_handler: {
+        client_mode: "focus-existing",
+      },
+      orientation: "portrait",
+      categories: ["finance"],
+      dir: "ltr",
       lang: "en",
       start_url: "/",
       display: "standalone",
-      background_color: "#ffffff",
+      background_color: "#6A80E6",
       theme_color: "#6A80E6",
       icons: [
         {
@@ -87,6 +94,12 @@ export default defineNuxtConfig({
     workbox: {
       navigateFallback: "/",
       globPatterns: ["**/*.{js,css,html,json,svg,webp,vue}"],
+      runtimeCaching: [
+        {
+          urlPattern: "**/*.{js,css,html,json,svg,webp,vue}",
+          handler: "CacheFirst",
+        },
+      ],
     },
     devOptions: {
       enabled: true,
