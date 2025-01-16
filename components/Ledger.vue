@@ -4,10 +4,12 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  period: Object,
-});
+<script setup lang="ts">
+import { type Period } from "~/stores/store";
+
+defineProps<{
+  period: Period;
+}>();
 </script>
 
 <style lang="less" scoped>

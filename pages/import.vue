@@ -12,35 +12,44 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      importedData: ''
-    }
-  },
-  mounted() {},
-  methods: {
-    changeFile(event) {
-      if (!event.target.files[0]) {
-        return
-      }
+<script setup lang="ts">
+import { ref, VueElement } from "vue";
+import { usePeriodStore } from "~/stores/store";
 
-      console.log('FILE', event, event.target.files[0])
+const store = usePeriodStore();
+const importedData = ref("");
 
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        console.log('result', event.target.result)
-        this.importedData = event.target.result
-      }
-      reader.onerror = (error) => console.log(error)
-      reader.readAsText(event.target.files[0])
-    },
-    importData() {
-      localStorage.periods = this.importedData
-    }
+const changeFile = (event: any) => {
+  if (!event.target.files[0]) {
+    return;
   }
-}
+
+  console.log("FILE", event, event.target.files[0]);
+
+  const reader = new FileReader();
+  reader.onload = (progressEvent: ProgressEvent<FileReader>) => {
+    if (!progressEvent?.target?.result) {
+      return;
+    }
+
+    console.log("result", progressEvent.target.result);
+    importedData.value += progressEvent.target.result as string;
+  };
+
+  reader.onerror = (error) => console.log(error);
+  reader.readAsText(event.target.files[0]);
+};
+
+const importData = () => {
+  let data = JSON.parse(importedData.value);
+
+  // TODO Migration; remove in the future
+  if (!data.periods) {
+    data = { periods: data };
+  }
+
+  store.periods = data.periods;
+};
 </script>
 
 <style lang="less"></style>

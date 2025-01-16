@@ -28,7 +28,11 @@ export default defineNuxtConfig({
       ],
     },
   },
-  modules: ["@vite-pwa/nuxt"],
+  modules: [
+    "@vite-pwa/nuxt",
+    "@pinia/nuxt",
+    "pinia-plugin-persistedstate/nuxt",
+  ],
   pwa: {
     scope: "/",
     manifest: {

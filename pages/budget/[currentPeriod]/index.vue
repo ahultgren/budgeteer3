@@ -1,5 +1,5 @@
 <template>
-  <div v-if="periods[currentPeriod]" class="container">
+  <div v-if="currentPeriod" class="container">
     <div class="nav box">
       <nuxt-link class="btn" to="/">&lt; Budgets</nuxt-link>
       <button class="nav-view btn" @click="toggleView()">
@@ -10,63 +10,31 @@
     <div class="main">
       <Flip>
         <template #front>
-          <Ledger
-            v-if="currentView === 'Ledger'"
-            :period="periods[currentPeriod]"
-          ></Ledger>
+          <Ledger v-if="currentView === 'Ledger'" :period="currentPeriod"></Ledger>
         </template>
         <template #back>
-          <Overview
-            v-if="currentView === 'Overview'"
-            :period="periods[currentPeriod]"
-          ></Overview>
+          <Overview v-if="currentView === 'Overview'" :period="currentPeriod"></Overview>
         </template>
       </Flip>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue";
+import { useRoute } from "vue-router";
+import { usePeriodStore } from "~/stores/store";
 import Ledger from "~/components/Ledger";
 import Overview from "~/components/Overview";
 
-export default {
-  components: {
-    Ledger,
-    Overview,
-  },
-  data() {
-    return {
-      currentView: "Ledger",
-      periods: [],
-      currentPeriod: this.$route.params.currentPeriod,
-    };
-  },
-  watch: {
-    periods: {
-      handler(val) {
-        localStorage.periods = JSON.stringify(val);
-      },
-      deep: true,
-    },
-    currentPeriod(val) {
-      localStorage.currentPeriod = JSON.stringify(val);
-    },
-  },
-  mounted() {
-    if (localStorage.periods) {
-      try {
-        this.periods = JSON.parse(localStorage.periods);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  },
-  methods: {
-    toggleView() {
-      this.currentView = this.currentView === "Ledger" ? "Overview" : "Ledger";
-    },
-  },
+const route = useRoute();
+const store = usePeriodStore();
+
+const currentView = ref("Ledger");
+const currentPeriod = store.periods[route.params.currentPeriod];
+
+const toggleView = () => {
+  currentView.value = currentView.value === "Ledger" ? "Overview" : "Ledger";
 };
 </script>
 

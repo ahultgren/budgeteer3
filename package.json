@@ -12,8 +12,12 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@ahultgren/vue3-swipe-actions": "^0.0.1",
+    "@pinia/nuxt": "^0.9.0",
     "@vite-pwa/nuxt": "^0.10.5",
     "nuxt": "^3.13.0",
+    "pinia": "^2.3.0",
+    "pinia-plugin-persistedstate": "^4.2.0",
     "ramda": "^0.30.1",
     "unimport": "^3.14.5",
     "vue": "latest",
