@@ -19,12 +19,14 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { currentCategories, totalSpent, totalBudget } from "~/assets/scripts";
 
-const props = defineProps({
-  period: Object,
-});
+defineProps<{
+  period: {
+    budget: Record<string, number>;
+  };
+}>();
 </script>
 
 <style lang="less">

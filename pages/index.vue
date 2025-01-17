@@ -32,8 +32,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { totalSpent, totalBudget } from "~/assets/scripts";
-// TODO Update when types are available
-// @ts-ignore
 import { SwipeList } from "@ahultgren/vue3-swipe-actions";
 import { usePeriodStore } from "~/stores/store";
 

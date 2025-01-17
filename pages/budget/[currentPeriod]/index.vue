@@ -20,7 +20,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup type="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { usePeriodStore } from "~/stores/store";
