@@ -51,17 +51,6 @@ export const usePeriodStore = defineStore(
       periods.value.splice(index, 1);
     }
 
-    onMounted(() => {
-      // Migrate from old localStorage solution
-      // TODO remove this in the future
-      const oldPeriods = window?.localStorage?.getItem?.("periods");
-
-      if (oldPeriods) {
-        window.localStorage.removeItem("periods");
-        periods.value = JSON.parse(oldPeriods);
-      }
-    });
-
     return {
       periods,
       addLedger,

@@ -43,11 +43,6 @@ const changeFile = (event: any) => {
 const importData = () => {
   let data = JSON.parse(importedData.value);
 
-  // TODO Migration; remove in the future
-  if (!data.periods) {
-    data = { periods: data };
-  }
-
   store.periods = data.periods;
 };
 </script>
