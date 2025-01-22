@@ -5,8 +5,8 @@
       <a class="btn nav-view" :href="downloadData()" target="_blank">Backup</a>
     </div>
     <div class="budgetlist">
-      <SwipeList :items="reversePeriods">
-        <template #default="{ item: [period, index] }">
+      <SwipeOut v-for="[period, index] in reversePeriods" :key="period.id">
+        <template #default>
           <nuxt-link :to="'/budget/' + index" class="budgetlist-item" :value="index">
             <span class="budgetlist-item-title">{{ title(period.ledger) }}</span>
             <span class="budgetlist-item-summary">
@@ -15,7 +15,7 @@
             </span>
           </nuxt-link>
         </template>
-        <template #right="{ item: [_, index] }">
+        <template #right>
           <button
             class="action-button swipeout-action"
             @click="store.deleteLedger(index)"
@@ -23,7 +23,7 @@
             Delete
           </button>
         </template>
-      </SwipeList>
+      </SwipeOut>
     </div>
     <nuxt-link to="/import">Import data from old domain</nuxt-link>
   </div>
@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { totalSpent, totalBudget } from "~/assets/scripts";
-import { SwipeList } from "@ahultgren/vue3-swipe-actions";
+import { SwipeOut } from "@ahultgren/vue3-swipe-actions";
 import { usePeriodStore } from "~/stores/store";
 
 const store = usePeriodStore();
@@ -43,7 +43,7 @@ const reversePeriods = computed(() => {
       return [item, i];
     })
     .reverse();
-});
+}) as ComputedRef<[Period, number][]>;
 
 const title = (ledger: string) => {
   return ledger.split("\n")[0];

@@ -1,8 +1,10 @@
 import { defineStore } from "pinia";
+import { v4 as uuidv4 } from "uuid";
 
 export type Period = {
   ledger: string;
   budget: Budget;
+  id: string;
 };
 
 export type Budget = Record<string, number>;
@@ -31,6 +33,7 @@ Or use any defined currency on the fly like this:
 100sek food
 `,
       budget: { test: 20 },
+      id: uuidv4(),
     },
   ];
 }
@@ -44,6 +47,7 @@ export const usePeriodStore = defineStore(
       periods.value.push({
         ledger: "New Ledger\n",
         budget: {},
+        id: uuidv4(),
       });
     }
 
@@ -60,6 +64,22 @@ export const usePeriodStore = defineStore(
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
+      afterHydrate: (context) => {
+        const unmigrated = context.store.periods.filter(
+          (period: Period) => !period.id
+        );
+
+        if (unmigrated.length > 0) {
+          console.log("Unmigrated periods", unmigrated);
+          context.store.periods = context.store.periods.map(
+            (period: Period) => ({
+              ...period,
+              id: period.id || uuidv4(),
+            })
+          );
+          console.log("Migrated periods", context.store.periods);
+        }
+      },
     },
   }
 );
