@@ -5,25 +5,27 @@
       <a class="btn nav-view" :href="downloadData()" target="_blank">Backup</a>
     </div>
     <div class="budgetlist">
-      <SwipeOut v-for="[period, index] in reversePeriods" :key="period.id">
-        <template #default>
-          <nuxt-link :to="'/budget/' + index" class="budgetlist-item" :value="index">
-            <span class="budgetlist-item-title">{{ title(period.ledger) }}</span>
-            <span class="budgetlist-item-summary">
-              {{ totalSpent(period) }} /
-              {{ totalBudget(period) }}
-            </span>
-          </nuxt-link>
-        </template>
-        <template #right>
-          <button
-            class="action-button swipeout-action"
-            @click="store.deleteLedger(index)"
-          >
-            Delete
-          </button>
-        </template>
-      </SwipeOut>
+      <TransitionGroup name="periods">
+        <SwipeOut v-for="[period, index] in reversePeriods" :key="period.id">
+          <template #default>
+            <nuxt-link :to="'/budget/' + index" class="budgetlist-item" :value="index">
+              <span class="budgetlist-item-title">{{ title(period.ledger) }}</span>
+              <span class="budgetlist-item-summary">
+                {{ totalSpent(period) }} /
+                {{ totalBudget(period) }}
+              </span>
+            </nuxt-link>
+          </template>
+          <template #right>
+            <button
+              class="action-button swipeout-action"
+              @click="store.deleteLedger(index)"
+            >
+              Delete
+            </button>
+          </template>
+        </SwipeOut>
+      </TransitionGroup>
     </div>
     <nuxt-link to="/import">Import data from old domain</nuxt-link>
   </div>
@@ -101,5 +103,21 @@ const downloadData = () => {
 
 .transition-left {
   transform: translate3d(-100%, 0, 0) !important;
+}
+
+.periods-enter-active {
+  transition: all 0.5s ease;
+}
+.periods-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+.periods-leave-active {
+  transition: all 0.5s cubic-bezier(0, 0, 0.1, 0.98);
+  max-height: 70px;
+}
+.periods-leave-to {
+  transform: scaleY(10%);
+  max-height: 0;
 }
 </style>
