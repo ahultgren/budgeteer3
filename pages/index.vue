@@ -112,12 +112,44 @@ const downloadData = () => {
   opacity: 0;
   transform: translateX(-30px);
 }
+.periods-move,
 .periods-leave-active {
-  transition: all 0.5s cubic-bezier(0, 0, 0.1, 0.98);
+  transition-property: transform, max-height;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.39, 0.01, 0.1, 0.98);
+}
+.periods-leave-active .swipeout-right {
+  transition-property: left, transform;
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0, 0, 0.1, 0.98);
+}
+.periods-leave-active {
+  position: absolute;
+  width: 100%;
   max-height: 70px;
+
+  .action-button {
+    position: absolute;
+    height: 100%;
+    max-width: 100px;
+  }
 }
 .periods-leave-to {
-  transform: scaleY(10%);
+  transform: scaleY(0);
+  transform-origin: top;
   max-height: 0;
+
+  .swipeout-right {
+    left: 0;
+    transform: translate(0);
+  }
+
+  .action-button {
+    position: absolute;
+    transform: none !important;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+  }
 }
 </style>
