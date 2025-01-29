@@ -27,6 +27,12 @@ import { usePeriodStore } from "~/stores/store";
 import Ledger from "~/components/Ledger";
 import Overview from "~/components/Overview";
 
+definePageMeta({
+  pageTransition: {
+    name: "slideInOut"
+  }
+});
+
 const route = useRoute();
 const store = usePeriodStore();
 
