@@ -37,7 +37,7 @@ const route = useRoute();
 const store = usePeriodStore();
 
 const currentView = ref("Ledger");
-const currentPeriod = store.periods[route.params.currentPeriod];
+const currentPeriod = store.getLedgerById(route.params.currentPeriod);
 
 const toggleView = () => {
   currentView.value = currentView.value === "Ledger" ? "Overview" : "Ledger";

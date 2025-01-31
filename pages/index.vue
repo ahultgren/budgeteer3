@@ -6,9 +6,9 @@
     </div>
     <div class="budgetlist">
       <TransitionGroup name="periods">
-        <SwipeOut v-for="[period, index] in reversePeriods" :key="period.id">
+        <SwipeOut v-for="period in reversePeriods" :key="period.id">
           <template #default>
-            <nuxt-link :to="'/budget/' + index" class="budgetlist-item" :value="index">
+            <nuxt-link :to="'/budget/' + period.id" class="budgetlist-item">
               <span class="budgetlist-item-title">{{ title(period.ledger) }}</span>
               <span class="budgetlist-item-summary">
                 {{ totalSpent(period) }} /
@@ -19,7 +19,7 @@
           <template #right>
             <button
               class="action-button swipeout-action"
-              @click="store.deleteLedger(index)"
+              @click="store.deleteLedger(period)"
             >
               Delete
             </button>
@@ -39,13 +39,7 @@ import { usePeriodStore } from "~/stores/store";
 
 const store = usePeriodStore();
 
-const reversePeriods = computed(() => {
-  return store.periods
-    .map((item, i) => {
-      return [item, i];
-    })
-    .reverse();
-}) as ComputedRef<[Period, number][]>;
+const reversePeriods = computed(() => store.periods.slice().reverse());
 
 const title = (ledger: string) => {
   return ledger.split("\n")[0];

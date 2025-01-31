@@ -51,14 +51,19 @@ export const usePeriodStore = defineStore(
       });
     }
 
-    function deleteLedger(index: number) {
-      periods.value.splice(index, 1);
+    function deleteLedger(period: Period) {
+      periods.value = periods.value.filter((p) => p.id !== period.id);
+    }
+
+    function getLedgerById(id: string) {
+      return periods.value.find((p) => p.id === id);
     }
 
     return {
       periods,
       addLedger,
       deleteLedger,
+      getLedgerById,
     };
   },
   {
