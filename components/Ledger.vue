@@ -31,6 +31,5 @@ defineProps<{
   position: absolute;
   top: 0;
   background-color: transparent;
-  caret-color: #000;
 }
 </style>
