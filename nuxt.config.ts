@@ -62,6 +62,7 @@ const MyPreset = definePreset(Aura, {
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
+  css: ["primeicons/primeicons.css"],
   app: {
     pageTransition: { name: "page" },
     head: {

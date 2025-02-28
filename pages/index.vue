@@ -1,8 +1,33 @@
 <template>
   <div class="container">
+    <Drawer v-model:visible="showMenu" header="Budgeteer">
+      <Menu :model="menuItems">
+        <template #item="{ item, props }">
+          <nuxt-link class="p-menu-item-link" v-if="item.route" :to="item.route">
+            <span :class="item.icon" />
+            <span class="ml-2">{{ item.label }}</span>
+          </nuxt-link>
+          <a v-else :href="item.url" :target="item.target" v-bind="props.action">
+            <span :class="item.icon" />
+            <span class="ml-2">{{ item.label }}</span>
+          </a>
+        </template>
+      </Menu>
+    </Drawer>
     <div class="nav box">
-      <button class="nav-add btn" @click="store.addLedger()">+</button>
-      <a class="btn nav-view" :href="downloadData()" target="_blank">Backup</a>
+      <Button
+        icon="pi pi-bars"
+        size="small"
+        aria-label="Open menu"
+        @click="showMenu = true"
+      />
+      <Button
+        icon="pi pi-pen-to-square"
+        size="small"
+        class="nav-add"
+        aria-label="Create new ledger"
+        @click="store.addLedger()"
+      />
     </div>
     <div v-if="store.loaded" class="budgetlist">
       <TransitionGroup name="periods">
@@ -21,14 +46,13 @@
               class="action-button swipeout-action"
               @click="store.deleteLedger(period)"
             >
-              Delete
+              <span class="pi pi-trash action-button-icon"></span>Delete
             </button>
           </template>
         </SwipeOut>
       </TransitionGroup>
     </div>
     <div v-else class="loading">Loading...</div>
-    <nuxt-link to="/import">Import data from old domain</nuxt-link>
   </div>
 </template>
 
@@ -41,16 +65,31 @@ import { usePeriodStore } from "~/stores/store";
 const store = usePeriodStore();
 
 const reversePeriods = computed(() => store.periods.slice().reverse());
+const showMenu = ref(false);
+
+const menuItems = [
+  {
+    label: "Download backup",
+    icon: "pi pi-download",
+    url: downloadData(),
+    target: "_blank",
+  },
+  {
+    label: "Import backup",
+    icon: "pi pi-upload",
+    route: "/import",
+  },
+];
 
 const title = (ledger: string) => {
   return ledger.split("\n")[0];
 };
 
-const downloadData = () => {
+function downloadData() {
   return `data:application/octet-stream,${encodeURIComponent(
     JSON.stringify(store.periods)
   )}`;
-};
+}
 </script>
 
 <style lang="less">
@@ -84,6 +123,10 @@ const downloadData = () => {
   }
 }
 
+.nav-add {
+  float: right;
+}
+
 .action-button {
   display: flex;
   align-items: center;
@@ -96,6 +139,10 @@ const downloadData = () => {
   background-color: rgb(255, 59, 48);
   color: white;
   padding: 0 15px;
+
+  &-icon {
+    padding-right: 8px;
+  }
 }
 
 .transition-right {

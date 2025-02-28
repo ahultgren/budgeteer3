@@ -1,10 +1,16 @@
 <template>
   <div v-if="currentPeriod" class="container">
     <div class="nav box">
-      <nuxt-link class="btn" to="/">&lt; Budgets</nuxt-link>
-      <button class="nav-view btn" @click="toggleView()">
-        Show {{ currentView === "Ledger" ? "summary" : "ledger" }}
-      </button>
+      <nuxt-link class="btn" to="/"
+        ><Button size="small" icon="pi pi-chevron-left" label="Budgets"
+      /></nuxt-link>
+      <Button
+        class="nav-view"
+        size="small"
+        icon="pi pi-sync"
+        @click="toggleView()"
+        :label="currentView === 'Ledger' ? 'Summary' : 'Ledger'"
+      />
     </div>
 
     <div class="main">
@@ -20,7 +26,7 @@
   </div>
 </template>
 
-<script setup type="ts">
+<script setup lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { usePeriodStore } from "~/stores/store";
@@ -29,15 +35,15 @@ import Overview from "~/components/Overview";
 
 definePageMeta({
   pageTransition: {
-    name: "slideInOut"
-  }
+    name: "slideInOut",
+  },
 });
 
 const route = useRoute();
 const store = usePeriodStore();
 
 const currentView = ref("Ledger");
-const currentPeriod = store.getLedgerById(route.params.currentPeriod);
+const currentPeriod = store.getLedgerById(route.params.currentPeriod as string);
 
 const toggleView = () => {
   currentView.value = currentView.value === "Ledger" ? "Overview" : "Ledger";
