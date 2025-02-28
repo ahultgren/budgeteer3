@@ -28,6 +28,7 @@ defineProps<{
 
   border: 0;
   height: 100%;
+  padding-bottom: 150px;
   position: absolute;
   top: 0;
   background-color: transparent;
