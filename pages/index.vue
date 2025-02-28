@@ -4,7 +4,7 @@
       <button class="nav-add btn" @click="store.addLedger()">+</button>
       <a class="btn nav-view" :href="downloadData()" target="_blank">Backup</a>
     </div>
-    <div class="budgetlist">
+    <div v-if="store.loaded" class="budgetlist">
       <TransitionGroup name="periods">
         <SwipeOut v-for="period in reversePeriods" :key="period.id">
           <template #default>
@@ -27,6 +27,7 @@
         </SwipeOut>
       </TransitionGroup>
     </div>
+    <div v-else class="loading">Loading...</div>
     <nuxt-link to="/import">Import data from old domain</nuxt-link>
   </div>
 </template>
@@ -54,6 +55,12 @@ const downloadData = () => {
 
 <style lang="less">
 @import "@ahultgren/vue3-swipe-actions/style.css";
+
+.loading {
+  text-align: center;
+  padding: 50px 20px;
+  height: 100vh;
+}
 
 .budgetlist {
   &-item {

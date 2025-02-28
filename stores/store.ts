@@ -43,6 +43,7 @@ export const usePeriodStore = defineStore(
   () => {
     const periods = ref<Period[]>(getDefault());
     const beforeLastDeletion = ref<Period[]>([] as Period[]);
+    const loaded = ref(false);
 
     function addLedger() {
       periods.value.push({
@@ -73,6 +74,7 @@ export const usePeriodStore = defineStore(
     return {
       periods,
       beforeLastDeletion,
+      loaded,
       addLedger,
       deleteLedger,
       getLedgerById,
@@ -81,22 +83,11 @@ export const usePeriodStore = defineStore(
   },
   {
     persist: {
-      omit: ["beforeLastDeletion"],
+      omit: ["beforeLastDeletion", "loaded"],
       storage: piniaPluginPersistedstate.localStorage(),
       afterHydrate: (context) => {
-        const unmigrated = context.store.periods.filter(
-          (period: Period) => !period.id
-        );
-
-        if (unmigrated.length > 0) {
-          console.log("Unmigrated periods", unmigrated);
-          context.store.periods = context.store.periods.map(
-            (period: Period) => ({
-              ...period,
-              id: period.id || uuidv4(),
-            })
-          );
-          console.log("Migrated periods", context.store.periods);
+        if (import.meta.client) {
+          context.store.loaded = true;
         }
       },
     },
