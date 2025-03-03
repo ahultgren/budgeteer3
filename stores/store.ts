@@ -87,7 +87,9 @@ export const usePeriodStore = defineStore(
       storage: piniaPluginPersistedstate.localStorage(),
       afterHydrate: (context) => {
         if (import.meta.client) {
-          context.store.loaded = true;
+          setTimeout(() => {
+            context.store.loaded = true;
+          }, 500);
         }
       },
     },
