@@ -7,7 +7,13 @@
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }}</span>
           </nuxt-link>
-          <a v-else :href="item.url" :target="item.target" v-bind="props.action">
+          <a
+            v-else
+            :href="item.url"
+            :target="item.target"
+            v-bind="props.action"
+            :download="item.download"
+          >
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }}</span>
           </a>
@@ -67,11 +73,12 @@ const store = usePeriodStore();
 const reversePeriods = computed(() => store.periods.slice().reverse());
 const showMenu = ref(false);
 
-const menuItems = [
+const menuItems = computed(() => [
   {
     label: "Download backup",
     icon: "pi pi-download",
-    url: downloadData(),
+    url: downloadData(store.periods),
+    download: "budgeteer-backup.json",
     target: "_blank",
   },
   {
@@ -79,16 +86,17 @@ const menuItems = [
     icon: "pi pi-upload",
     route: "/import",
   },
-];
+]);
 
 const title = (ledger: string) => {
   return ledger.split("\n")[0];
 };
 
-function downloadData() {
-  return `data:application/octet-stream,${encodeURIComponent(
-    JSON.stringify(store.periods)
-  )}`;
+function downloadData(data: Record<string, any>) {
+  const json = JSON.stringify(data);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  return url;
 }
 </script>
 
