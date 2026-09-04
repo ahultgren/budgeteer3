@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { currentCategories, totalSpent, totalBudget } from "../../assets/scripts.js";
 
-// Helper: build a period. First ledger line is always the title (parser skips it).
+// The parser skips the first ledger line as the title, so prepend one.
 const period = (ledgerBody, budget = {}) => ({
   ledger: "Title\n" + ledgerBody,
   budget,
@@ -15,7 +15,6 @@ describe("currentCategories — basic parsing", () => {
   });
 
   it("skips the first line (title)", () => {
-    // Title line "100 title" must NOT become a category.
     expect(currentCategories({ ledger: "100 title\n50 food", budget: {} })).toEqual([
       { name: "food", amount: 50, budget: 0 },
     ]);
@@ -47,7 +46,7 @@ describe("currentCategories — basic parsing", () => {
 describe("currentCategories — currencies", () => {
   it("converts an inline currency using its defined rate", () => {
     const cats = currentCategories(period("-eur 0.086\n100eur food"));
-    expect(cats[0].amount).toBeCloseTo(100 / 0.086, 6); // ≈ 1162.79
+    expect(cats[0].amount).toBeCloseTo(100 / 0.086, 6);
   });
 
   it("treats sek as the base currency (rate 1) even inline", () => {
@@ -55,13 +54,11 @@ describe("currentCategories — currencies", () => {
   });
 
   it("a currency-definition line changes the default for all following bare-number lines", () => {
-    // This is the subtle, load-bearing behavior: -eur sets the running default.
     const cats = currentCategories(period("-eur 0.086\n100 food"));
     expect(cats[0].amount).toBeCloseTo(100 / 0.086, 6);
   });
 
   it("using an inline currency does NOT change the running default", () => {
-    // Line 2 uses sek inline; line 3 (bare) must still use the eur default from line 1.
     const cats = currentCategories(period("-eur 0.086\n100sek food\n100 food"));
     expect(cats[0].amount).toBeCloseTo(100 + 100 / 0.086, 6);
   });
@@ -114,7 +111,6 @@ describe("totalSpent / totalBudget", () => {
   });
 
   it("only counts budgets for categories present in the ledger", () => {
-    // `unused` has a budget but no ledger entry → excluded from the total.
     expect(totalBudget(period("100 food", { food: 20, unused: 999 }))).toBe(20);
   });
 

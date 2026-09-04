@@ -53,3 +53,12 @@ The ledger is plain text parsed by `assets/scripts.js` using regex:
 ### UI
 
 Uses **PrimeVue 4** with a custom Aura preset (violet primary color). Icons via `primeicons`. Swipe actions via `@ahultgren/vue3-swipe-actions`. Styling uses **Less** with scoped styles per component.
+
+## Writing comments
+
+A comment earns its place only by telling the reader something the code cannot.
+
+- Write a comment only when the code isn't clear on its own. If the code already says it, delete the comment — don't restate a call, a type, or a test's name.
+- Motivation, justification, and "why this approach" belong in the commit message or PR body, not the source.
+- No editorializing ("the important one", "the clever bit") and no history ("used to be X", "fails today").
+- A non-obvious external constraint — a platform quirk, an API footgun, where a magic constant comes from — is worth a terse note. State the fact, nothing more.

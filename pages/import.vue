@@ -48,7 +48,6 @@ const importData = () => {
     }
     store.periods = data.periods;
   } catch (e) {
-    // ponytail: native alert — no toast plumbing needed on a page you visit once.
     alert("Could not import backup: " + (e as Error).message);
   }
 };

@@ -69,12 +69,13 @@ describe("store — delete + undo", () => {
   it("only the most recent deletion is undoable (single-level undo)", () => {
     const store = usePeriodStore();
     store.addLedger();
-    store.addLedger(); // now 3 periods: [p0, p1, p2]
+    store.addLedger();
     const [p0, p1, p2] = store.periods;
 
-    store.deleteLedger(p1); // -> [p0, p2]
-    store.deleteLedger(p0); // -> [p2]; stash is [p0, p2]
-    store.undo(); // restores stash -> [p0, p2]; p1 stays gone
+    store.deleteLedger(p1);
+    store.deleteLedger(p0);
+    // undo restores the state before the last delete only, so p1 stays gone.
+    store.undo();
 
     expect(store.periods.map((p) => p.id)).toEqual([p0.id, p2.id]);
   });

@@ -1,9 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// The suite runs against the PRODUCTION BUILD (not the dev server), because that is what
-// deploys and what carries the real service worker + precache manifest — the only way to
-// test offline honestly. After the Vite migration, only `webServer.command` changes
-// (generate+preview -> vite build+preview); the specs and screenshots stay identical.
+// webServer builds and serves the production output so the real service worker is exercised.
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: false,
@@ -14,7 +11,6 @@ export default defineConfig({
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
   },
-  // Emulate a phone — this is a mobile-first PWA.
   projects: [{ name: "mobile-chromium", use: { ...devices["Pixel 5"] } }],
   webServer: {
     command: "npm run generate && npm run preview",

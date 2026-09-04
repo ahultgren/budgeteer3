@@ -8,9 +8,8 @@ const backup = JSON.parse(
 
 export const fixture = backup as { periods: Array<{ id: string; ledger: string; budget: Record<string, number> }> };
 
-// pinia-plugin-persistedstate stores the (non-omitted) state under the store's id ("store")
-// as `{ periods: [...] }`. Injecting it before load makes ids deterministic, so screenshots
-// and /budget/:id routes are stable across runs and across the migration.
+// persistedstate keys localStorage by the store id ("store") with shape `{ periods: [...] }`.
+// Seeding it before load fixes the period ids, keeping /budget/:id routes and screenshots stable.
 export async function seedStore(page: Page) {
   await page.addInitScript((data) => {
     localStorage.setItem("store", JSON.stringify(data));

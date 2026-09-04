@@ -1,10 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { seedStore } from "./seed";
 
-// These snapshots are the BEFORE-migration baseline. After migrating to Vite, re-running this
-// spec diffs the Vite build against these images pixel-by-pixel. Any unintended visual change
-// (layout, color, missing icon/font) fails the test. Regenerate intentionally with
-// `npm run test:e2e:update`. `toHaveScreenshot` disables CSS animations automatically.
 test.beforeEach(async ({ page }) => {
   await seedStore(page);
 });

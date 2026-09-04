@@ -80,11 +80,7 @@ export default defineNuxtConfig({
           content: process.env.npm_package_description || "",
         },
       ],
-      link: [
-        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-        // Removed a dead apple-touch-startup-image link — the referenced splash_screens/ file
-        // doesn't exist, so it 404s (including offline). Re-add with a real asset if wanted.
-      ],
+      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
     },
   },
   modules: [

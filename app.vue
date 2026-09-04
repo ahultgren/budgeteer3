@@ -35,7 +35,6 @@ html {
   min-height: 100vh;
 }
 
-/* Transitions */
 .page {
   position: relative;
   background-color: #fff;
