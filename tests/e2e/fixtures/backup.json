@@ -1,0 +1,14 @@
+{
+  "periods": [
+    {
+      "id": "test-period-1",
+      "ledger": "Groceries\n100 food\n50 transport\n-eur 0.086\n20eur coffee",
+      "budget": { "food": 200, "transport": 100, "coffee": 50 }
+    },
+    {
+      "id": "test-period-2",
+      "ledger": "Trip\n500 hotel\n200 food",
+      "budget": { "hotel": 600, "food": 300 }
+    }
+  ]
+}

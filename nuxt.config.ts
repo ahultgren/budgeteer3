@@ -82,12 +82,8 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-        {
-          rel: "apple-touch-startup-image",
-          media:
-            "screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)",
-          href: "splash_screens/iPhone_11__iPhone_XR_portrait.png",
-        },
+        // Removed a dead apple-touch-startup-image link — the referenced splash_screens/ file
+        // doesn't exist, so it 404s (including offline). Re-add with a real asset if wanted.
       ],
     },
   },
@@ -176,10 +172,10 @@ export default defineNuxtConfig({
     },
     workbox: {
       navigateFallback: "/",
-      globPatterns: ["**/*.{js,css,html,json,svg,webp,vue}"],
+      globPatterns: ["**/*.{js,css,html,json,svg,webp,vue,woff,woff2,ttf,eot}"],
       runtimeCaching: [
         {
-          urlPattern: "**/*.{js,css,html,json,svg,webp,vue}",
+          urlPattern: "**/*.{js,css,html,json,svg,webp,vue,woff,woff2,ttf,eot}",
           handler: "CacheFirst",
         },
       ],

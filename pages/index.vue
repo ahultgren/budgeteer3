@@ -77,7 +77,7 @@ const menuItems = computed(() => [
   {
     label: "Download backup",
     icon: "pi pi-download",
-    url: downloadData(store.periods),
+    url: downloadData({ periods: store.periods }),
     download: "budgeteer-backup.json",
     target: "_blank",
   },

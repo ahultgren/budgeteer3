@@ -41,9 +41,16 @@ const changeFile = (event: any) => {
 };
 
 const importData = () => {
-  let data = JSON.parse(importedData.value);
-
-  store.periods = data.periods;
+  try {
+    const data = JSON.parse(importedData.value);
+    if (!data || !Array.isArray(data.periods)) {
+      throw new Error("missing a `periods` array");
+    }
+    store.periods = data.periods;
+  } catch (e) {
+    // ponytail: native alert — no toast plumbing needed on a page you visit once.
+    alert("Could not import backup: " + (e as Error).message);
+  }
 };
 </script>
 

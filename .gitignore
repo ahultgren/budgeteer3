@@ -18,6 +18,12 @@ logs
 .fleet
 .idea
 
+# Playwright run artifacts (baselines under *-snapshots/ ARE committed)
+test-results
+playwright-report
+blob-report
+.playwright
+
 # Local env files
 .env
 .env.*
