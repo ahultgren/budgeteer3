@@ -1,7 +1,7 @@
 <template>
   <div>
-    <router-view v-slot="{ Component, route }">
-      <transition :name="(route.meta.transition as string) || 'page'">
+    <router-view v-slot="{ Component }">
+      <transition :name="transition">
         <component :is="Component" />
       </transition>
     </router-view>
@@ -10,7 +10,17 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import Undo from "~/components/Undo.vue";
+
+// Slide whenever the budget detail (which sets meta.transition) is entering OR
+// leaving; reading `from` keeps the slide on back-navigation. Otherwise fade.
+const transition = ref("page");
+useRouter().afterEach((to, from) => {
+  transition.value =
+    (to.meta.transition as string) || (from.meta.transition as string) || "page";
+});
 </script>
 
 <style>
