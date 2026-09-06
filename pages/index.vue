@@ -3,10 +3,10 @@
     <Drawer v-model:visible="showMenu" header="Budgeteer">
       <Menu :model="menuItems">
         <template #item="{ item, props }">
-          <nuxt-link class="p-menu-item-link" v-if="item.route" :to="item.route">
+          <router-link class="p-menu-item-link" v-if="item.route" :to="item.route">
             <span :class="item.icon" />
             <span class="ml-2">{{ item.label }}</span>
-          </nuxt-link>
+          </router-link>
           <a
             v-else
             :href="item.url"
@@ -39,13 +39,13 @@
       <TransitionGroup name="periods">
         <SwipeOut v-for="period in reversePeriods" :key="period.id">
           <template #default>
-            <nuxt-link :to="'/budget/' + period.id" class="budgetlist-item">
+            <router-link :to="'/budget/' + period.id" class="budgetlist-item">
               <span class="budgetlist-item-title">{{ title(period.ledger) }}</span>
               <span class="budgetlist-item-summary">
                 {{ totalSpent(period) }} /
                 {{ totalBudget(period) }}
               </span>
-            </nuxt-link>
+            </router-link>
           </template>
           <template #right>
             <button
@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { totalSpent, totalBudget } from "~/assets/scripts";
 import { SwipeOut } from "@ahultgren/vue3-swipe-actions";
 import { usePeriodStore } from "~/stores/store";

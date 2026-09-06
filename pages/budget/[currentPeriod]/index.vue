@@ -1,9 +1,9 @@
 <template>
   <div v-if="currentPeriod" class="container">
     <div class="nav box">
-      <nuxt-link class="btn" to="/"
+      <router-link class="btn" to="/"
         ><Button size="small" icon="pi pi-chevron-left" label="Budgets"
-      /></nuxt-link>
+      /></router-link>
       <Button
         class="nav-view"
         size="small"
@@ -30,14 +30,9 @@
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { usePeriodStore } from "~/stores/store";
-import Ledger from "~/components/Ledger";
-import Overview from "~/components/Overview";
-
-definePageMeta({
-  pageTransition: {
-    name: "slideInOut",
-  },
-});
+import Flip from "~/components/Flip.vue";
+import Ledger from "~/components/Ledger.vue";
+import Overview from "~/components/Overview.vue";
 
 const route = useRoute();
 const store = usePeriodStore();
@@ -49,52 +44,3 @@ const toggleView = () => {
   currentView.value = currentView.value === "Ledger" ? "Overview" : "Ledger";
 };
 </script>
-
-<style lang="less">
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-size: 16px;
-}
-textarea,
-input,
-button {
-  font-size: inherit;
-}
-
-.nav {
-  position: sticky;
-  background: rgba(245, 248, 255, 95%);
-  z-index: 1;
-  left: 0;
-  top: 0;
-  right: 0;
-
-  &-view {
-    float: right;
-  }
-}
-.main {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  position: relative;
-}
-
-.box {
-  padding: 10px;
-}
-.btn {
-  appearance: none;
-  background: transparent;
-  border: none;
-  padding: 2px 0px;
-  display: inline-block;
-  text-decoration: none;
-  color: #003eb4;
-  font-family: inherit;
-  font-weight: 600;
-}
-</style>

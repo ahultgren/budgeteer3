@@ -5,17 +5,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev        # Start dev server (localhost:3000)
-npm run build      # Build for production
-npm run generate   # Static site generation
-npm run preview    # Preview production build
+npm run dev        # Start Vite dev server (localhost:5173)
+npm run build      # Build for production to dist/ (+ copies index.html -> 404.html)
+npm run preview    # Preview production build (localhost:3000)
+npm run test       # Unit (Vitest) + e2e (Playwright); or test:unit / test:e2e
 ```
-
-No test suite exists in this project.
 
 ## Architecture
 
-Budgeteer is a **Nuxt 3 PWA** for personal expense tracking. All data lives entirely in the browser — there is no backend. State is persisted to `localStorage` via `pinia-plugin-persistedstate`.
+Budgeteer is a **Vite + Vue 3 SPA** (installable PWA via `vite-plugin-pwa`) for personal expense tracking. There is no SSR and no backend — all data lives in the browser, persisted to `localStorage` via `pinia-plugin-persistedstate`.
+
+Entry is `main.ts` (creates the app, registers Pinia + persist plugin, Vue Router, PrimeVue, and the PrimeVue components used in templates) → `app.vue` (root, wraps `<router-view>` in a `<transition>` and mounts `Undo`). Routes are declared in `router.ts`.
 
 ### Data model
 
@@ -24,7 +24,7 @@ Budgeteer is a **Nuxt 3 PWA** for personal expense tracking. All data lives enti
 - `Period` — one budget period, with a freeform `ledger: string`, a `budget: Record<string, number>` (category → budget amount), and a UUID `id`
 - `Budget` — alias for `Record<string, number>`
 
-The `loaded` flag is set after a 500ms delay post-hydration (to avoid SSR/localStorage hydration mismatches) and gates rendering of the period list.
+The `loaded` flag is set after a 500ms delay once the persisted state has hydrated, and gates rendering of the period list. It is omitted from persistence (`persist.omit`) and set in `persist.afterHydrate`.
 
 ### Ledger format
 
@@ -40,8 +40,13 @@ The ledger is plain text parsed by `assets/scripts.js` using regex:
 
 ### Pages & routing
 
+Routes are hand-declared in `router.ts` (`createWebHistory("/")`, lazy-imported page components):
+
 - `/` (`pages/index.vue`) — period list with swipe-to-delete, download/import menu
-- `/budget/[currentPeriod]` (`pages/budget/[currentPeriod]/index.vue`) — budget detail view, toggles between Ledger and Overview
+- `/budget/:currentPeriod` (`pages/budget/[currentPeriod]/index.vue`) — budget detail view, toggles between Ledger and Overview; route meta sets the `slideInOut` transition
+- `/import` (`pages/import.vue`) — restore from a backup JSON file
+
+The `[currentPeriod]` directory name is a leftover from Nuxt's file-based routing; the file is just a normal component now.
 
 ### Components
 
@@ -52,7 +57,11 @@ The ledger is plain text parsed by `assets/scripts.js` using regex:
 
 ### UI
 
-Uses **PrimeVue 4** with a custom Aura preset (violet primary color). Icons via `primeicons`. Swipe actions via `@ahultgren/vue3-swipe-actions`. Styling uses **Less** with scoped styles per component.
+Uses **PrimeVue 4** with a custom Aura preset (violet primary color, defined in `main.ts`). Icons via `primeicons`. Swipe actions via `@ahultgren/vue3-swipe-actions`. Styling uses **Less**. Note: Vite code-splits CSS per route, so shared **non-scoped** layout styles (`.nav`, `.box`, `.btn`, base resets) live in `app.vue`'s global `<style>` — putting them in a route component's non-scoped block would make them vanish on pages that haven't loaded that chunk.
+
+## Build & deploy
+
+Static build to `dist/`, deployed to GitHub Pages at the custom domain `budgeteer2.andreashultgren.se` (served at root, so Vite `base` is `/`). `.github/workflows/deploy.yml` builds with pnpm and publishes `dist/` via GitHub Actions. `public/CNAME` sets the custom domain; `build` copies `index.html`→`404.html` so client-side deep links (e.g. `/budget/:id`) resolve on hard refresh. `vite-plugin-pwa` generates the service worker + manifest.
 
 ## Writing comments
 

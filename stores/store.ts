@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import { defineStore } from "pinia";
 import { v4 as uuidv4 } from "uuid";
 
@@ -84,9 +85,10 @@ export const usePeriodStore = defineStore(
   {
     persist: {
       omit: ["beforeLastDeletion", "loaded"],
-      storage: piniaPluginPersistedstate.localStorage(),
+      // Evaluated at store-definition time; guard keeps node unit tests from touching localStorage.
+      storage: typeof window !== "undefined" ? window.localStorage : undefined,
       afterHydrate: (context) => {
-        if (import.meta.client) {
+        if (typeof window !== "undefined") {
           setTimeout(() => {
             context.store.loaded = true;
           }, 500);

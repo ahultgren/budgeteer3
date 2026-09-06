@@ -13,7 +13,7 @@ export default defineConfig({
   },
   projects: [{ name: "mobile-chromium", use: { ...devices["Pixel 5"] } }],
   webServer: {
-    command: "npm run generate && npm run preview",
+    command: "npm run build && npm run preview",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,

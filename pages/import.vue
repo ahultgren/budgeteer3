@@ -7,7 +7,7 @@
       <button @click="importData()">Import!</button>
     </p>
     <p>
-      <nuxt-link to="/">Return to app</nuxt-link>
+      <router-link to="/">Return to app</router-link>
     </p>
   </div>
 </template>

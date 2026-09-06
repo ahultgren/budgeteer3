@@ -1,12 +1,17 @@
 <template>
   <div>
-    <VitePwaManifest />
-    <NuxtLayout>
-      <NuxtPage />
-      <Undo />
-    </NuxtLayout>
+    <router-view v-slot="{ Component, route }">
+      <transition :name="(route.meta.transition as string) || 'page'">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+    <Undo />
   </div>
 </template>
+
+<script setup lang="ts">
+import Undo from "~/components/Undo.vue";
+</script>
 
 <style>
 html {
@@ -28,7 +33,6 @@ html {
   margin: 0;
 }
 
-/* TODO Implement modular/scoped css */
 .container {
   display: flex;
   flex-direction: column;
@@ -76,5 +80,50 @@ html {
   position: absolute;
   width: 100%;
   top: 0;
+}
+</style>
+
+<style lang="less">
+/* Shared layout primitives used across pages (list + budget). Global, not scoped —
+   Nuxt bundled all component CSS eagerly; Vite code-splits per route, so these must
+   live here to stay present on every page. */
+textarea,
+input,
+button {
+  font-size: inherit;
+}
+
+.nav {
+  position: sticky;
+  background: rgba(245, 248, 255, 95%);
+  z-index: 1;
+  left: 0;
+  top: 0;
+  right: 0;
+
+  &-view {
+    float: right;
+  }
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  position: relative;
+}
+
+.box {
+  padding: 10px;
+}
+.btn {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 2px 0px;
+  display: inline-block;
+  text-decoration: none;
+  color: #003eb4;
+  font-family: inherit;
+  font-weight: 600;
 }
 </style>
