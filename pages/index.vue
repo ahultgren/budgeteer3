@@ -19,6 +19,7 @@
           </a>
         </template>
       </Menu>
+      <div class="drawer-version">{{ version }}</div>
     </Drawer>
     <div class="nav box">
       <Button
@@ -70,6 +71,7 @@ import { usePeriodStore } from "~/stores/store";
 
 const store = usePeriodStore();
 
+const version = __APP_VERSION__;
 const reversePeriods = computed(() => store.periods.slice().reverse());
 const showMenu = ref(false);
 
@@ -102,6 +104,14 @@ function downloadData(data: Record<string, any>) {
 
 <style lang="less">
 @import "@ahultgren/vue3-swipe-actions/style.css";
+
+.drawer-version {
+  position: absolute;
+  bottom: 1rem;
+  left: 1.25rem;
+  font-size: 12px;
+  color: #888;
+}
 
 .loading {
   text-align: center;

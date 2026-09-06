@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
@@ -6,8 +7,21 @@ import { VitePWA } from "vite-plugin-pwa";
 
 const root = dirname(fileURLToPath(import.meta.url));
 
+function appVersion() {
+  const date = new Date().toISOString().slice(0, 10);
+  try {
+    const sha = execSync("git rev-parse --short HEAD").toString().trim();
+    return `${sha} · ${date}`;
+  } catch {
+    return date;
+  }
+}
+
 export default defineConfig({
   base: "/",
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion()),
+  },
   resolve: {
     alias: [
       { find: "~", replacement: root },
