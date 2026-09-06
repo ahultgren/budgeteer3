@@ -61,7 +61,7 @@ Uses **PrimeVue 4** with a custom Aura preset (violet primary color, defined in 
 
 ## Build & deploy
 
-Static build to `dist/`, deployed to GitHub Pages at the custom domain `budgeteer2.andreashultgren.se` (served at root, so Vite `base` is `/`). `.github/workflows/deploy.yml` builds with pnpm and publishes `dist/` via GitHub Actions. `public/CNAME` sets the custom domain; `build` copies `index.html`→`404.html` so client-side deep links (e.g. `/budget/:id`) resolve on hard refresh. `vite-plugin-pwa` generates the service worker + manifest.
+Static build to `dist/`, deployed to GitHub Pages at the custom domain `budgeteer.andreashultgren.se` (served at root, so Vite `base` is `/`). `.github/workflows/deploy.yml` builds with pnpm and publishes `dist/` via GitHub Actions. `public/CNAME` sets the custom domain; `build` copies `index.html`→`404.html` so client-side deep links (e.g. `/budget/:id`) resolve on hard refresh. `vite-plugin-pwa` generates the service worker + manifest.
 
 ## Writing comments
 
