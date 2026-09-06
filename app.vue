@@ -24,6 +24,9 @@ useRouter().afterEach((to, from) => {
 
 <style>
 html {
+  /* Opt into both schemes so the `Canvas` background color (and UA controls)
+     follow the OS. WebKit resolves `Canvas` to white without this, even in dark. */
+  color-scheme: light dark;
   font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
@@ -46,6 +49,9 @@ html {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Opaque (matching the page background, incl. dark) so a page always covers what
+     is beneath it during a transition. `Canvas` is the system default background. */
+  background-color: Canvas;
 }
 
 .page-enter-active,
@@ -67,23 +73,29 @@ html {
 /* Push (open budget): incoming page slides in from the right, on top; the page
    underneath stays put. Pop (back): outgoing page slides off to the right,
    revealing the stationary page beneath. Only the budget page ever moves. */
+/* Both pages are absolutely positioned and overlapping during the slide so they
+   never stack vertically — otherwise the outgoing page flashes as the incoming
+   one snaps back into normal flow at the end. */
 .push-enter-active,
+.push-leave-active,
+.pop-enter-active,
 .pop-leave-active {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
+}
+/* The moving page rides on top. */
+.push-enter-active,
+.pop-leave-active {
   z-index: 2;
-  /* Opaque (matching the page background, incl. dark) so the sliding page fully
-     covers the one beneath it. `Canvas` is the system default background color. */
-  background-color: Canvas;
   transition: transform 0.35s cubic-bezier(0.35, 0.01, 0.43, 0.99);
 }
 .push-enter-from,
 .pop-leave-to {
   transform: translateX(100%);
 }
-/* Keep the stationary page mounted underneath for the duration of the slide. */
+/* Keep the stationary page mounted underneath for the slide's duration. */
 .push-leave-active,
 .pop-enter-active {
   transition: transform 0.35s;
