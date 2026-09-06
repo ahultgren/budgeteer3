@@ -70,12 +70,9 @@ html {
   top: 0;
 }
 
-/* Push (open budget): incoming page slides in from the right, on top; the page
-   underneath stays put. Pop (back): outgoing page slides off to the right,
-   revealing the stationary page beneath. Only the budget page ever moves. */
-/* Both pages are absolutely positioned and overlapping during the slide so they
-   never stack vertically — otherwise the outgoing page flashes as the incoming
-   one snaps back into normal flow at the end. */
+/* Push (open budget): the budget slides in from the right on top of the stationary
+   list. Pop (back): the budget slides off to the right, revealing the list beneath.
+   Both pages are absolutely positioned and overlapping during the slide. */
 .push-enter-active,
 .push-leave-active,
 .pop-enter-active,
@@ -85,7 +82,7 @@ html {
   left: 0;
   width: 100%;
 }
-/* The moving page rides on top. */
+/* The moving (budget) page rides on top. */
 .push-enter-active,
 .pop-leave-active {
   z-index: 2;
@@ -95,9 +92,12 @@ html {
 .pop-leave-to {
   transform: translateX(100%);
 }
-/* Keep the stationary page mounted underneath for the slide's duration. */
+/* The stationary page is held below (negative z-index) for the slide's duration.
+   Without this it briefly paints on top when the incoming page drops back to normal
+   flow at the end of the transition — a one-frame flash of the previous page. */
 .push-leave-active,
 .pop-enter-active {
+  z-index: -1;
   transition: transform 0.35s;
 }
 </style>
