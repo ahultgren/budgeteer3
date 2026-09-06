@@ -42,12 +42,10 @@ html {
   margin: 0;
 }
 
-/* Opaque so a sliding page fully covers the one beneath it during a transition. */
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #fff;
 }
 
 .page-enter-active,
@@ -76,6 +74,9 @@ html {
   left: 0;
   width: 100%;
   z-index: 2;
+  /* Opaque (matching the page background, incl. dark) so the sliding page fully
+     covers the one beneath it. `Canvas` is the system default background color. */
+  background-color: Canvas;
   transition: transform 0.35s cubic-bezier(0.35, 0.01, 0.43, 0.99);
 }
 .push-enter-from,
