@@ -18,7 +18,9 @@ import Undo from "~/components/Undo.vue";
 // list, and pops back off it. Other navigations fade.
 //
 // Browser-initiated back (iOS Safari edge-swipe or the back button) plays Safari's
-// own native slide. Skip our transition there so the two don't fight — our animation
+// own native slide. There we use the "back" transition, which doesn't animate but
+// pushes the outgoing page behind (z-index) so it can't flash on top for a frame
+// when Safari reveals the live DOM at the end of its native animation. Our own slide
 // is only for in-app navigation (tapping a budget or the "< Budgets" button, both
 // router pushes). Vue Router tracks a monotonic `position` in history.state: it
 // decreases on back and increases on push, which distinguishes the two reliably
@@ -30,7 +32,7 @@ useRouter().afterEach((to, from) => {
   const wentBack = position < lastPosition;
   lastPosition = position;
   if (wentBack) {
-    transition.value = "none";
+    transition.value = "back";
   } else {
     transition.value = to.meta.slide ? "push" : from.meta.slide ? "pop" : "page";
   }
@@ -114,6 +116,16 @@ html {
 .pop-enter-active {
   z-index: -1;
   transition: transform 0.35s;
+}
+
+/* Native back (Safari swipe): don't animate, but keep the outgoing page behind so it
+   can't flash on top for a frame as Safari finishes its own native slide. */
+.back-leave-active {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: -1;
 }
 </style>
 
