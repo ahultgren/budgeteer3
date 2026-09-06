@@ -8,7 +8,7 @@ export const router = createRouter({
     {
       path: "/budget/:currentPeriod",
       component: () => import("~/pages/budget/[currentPeriod]/index.vue"),
-      meta: { transition: "slideInOut" },
+      meta: { slide: true },
     },
   ],
 });

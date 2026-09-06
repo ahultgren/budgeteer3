@@ -14,12 +14,11 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import Undo from "~/components/Undo.vue";
 
-// Slide whenever the budget detail (which sets meta.transition) is entering OR
-// leaving; reading `from` keeps the slide on back-navigation. Otherwise fade.
+// Only the budget detail (meta.slide) animates: it pushes in over the stationary
+// list, and pops back off it. Other navigations fade.
 const transition = ref("page");
 useRouter().afterEach((to, from) => {
-  transition.value =
-    (to.meta.transition as string) || (from.meta.transition as string) || "page";
+  transition.value = to.meta.slide ? "push" : from.meta.slide ? "pop" : "page";
 });
 </script>
 
@@ -43,14 +42,11 @@ html {
   margin: 0;
 }
 
+/* Opaque so a sliding page fully covers the one beneath it during a transition. */
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-}
-
-.page {
-  position: relative;
   background-color: #fff;
 }
 
@@ -70,26 +66,26 @@ html {
   top: 0;
 }
 
-.slideInOut {
-  position: relative;
+/* Push (open budget): incoming page slides in from the right, on top; the page
+   underneath stays put. Pop (back): outgoing page slides off to the right,
+   revealing the stationary page beneath. Only the budget page ever moves. */
+.push-enter-active,
+.pop-leave-active {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  transition: transform 0.35s cubic-bezier(0.35, 0.01, 0.43, 0.99);
 }
-
-.slideInOut-enter-active {
-  transition: transform 0.4s cubic-bezier(0, 0, 0, 0.98);
-}
-.slideInOut-leave-active {
-  transition: transform 0.3s cubic-bezier(0.35, 0.01, 0.43, 0.99);
-}
-
-.slideInOut-enter-from,
-.slideInOut-leave-to {
+.push-enter-from,
+.pop-leave-to {
   transform: translateX(100%);
 }
-
-.slideInOut-enter-active {
-  position: absolute;
-  width: 100%;
-  top: 0;
+/* Keep the stationary page mounted underneath for the duration of the slide. */
+.push-leave-active,
+.pop-enter-active {
+  transition: transform 0.35s;
 }
 </style>
 
