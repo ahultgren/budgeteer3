@@ -36,7 +36,7 @@
         @click="store.addLedger()"
       />
     </div>
-    <div v-if="store.loaded" class="budgetlist">
+    <div class="budgetlist">
       <TransitionGroup name="periods">
         <SwipeOut v-for="period in reversePeriods" :key="period.id">
           <template #default>
@@ -59,7 +59,6 @@
         </SwipeOut>
       </TransitionGroup>
     </div>
-    <div v-else class="loading">Loading...</div>
   </div>
 </template>
 
@@ -111,12 +110,6 @@ function downloadData(data: Record<string, any>) {
   left: 1.25rem;
   font-size: 12px;
   color: #888;
-}
-
-.loading {
-  text-align: center;
-  padding: 50px 20px;
-  height: 100vh;
 }
 
 .budgetlist {

@@ -10,7 +10,6 @@ describe("store — defaults", () => {
   it("starts with the single demo period", () => {
     const store = usePeriodStore();
     expect(store.periods).toHaveLength(1);
-    expect(store.loaded).toBe(false);
     expect(store.beforeLastDeletion).toEqual([]);
   });
 });

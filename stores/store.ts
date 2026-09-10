@@ -44,7 +44,6 @@ export const usePeriodStore = defineStore(
   () => {
     const periods = ref<Period[]>(getDefault());
     const beforeLastDeletion = ref<Period[]>([] as Period[]);
-    const loaded = ref(false);
 
     function addLedger() {
       periods.value.push({
@@ -75,7 +74,6 @@ export const usePeriodStore = defineStore(
     return {
       periods,
       beforeLastDeletion,
-      loaded,
       addLedger,
       deleteLedger,
       getLedgerById,
@@ -84,16 +82,9 @@ export const usePeriodStore = defineStore(
   },
   {
     persist: {
-      omit: ["beforeLastDeletion", "loaded"],
+      omit: ["beforeLastDeletion"],
       // Evaluated at store-definition time; guard keeps node unit tests from touching localStorage.
       storage: typeof window !== "undefined" ? window.localStorage : undefined,
-      afterHydrate: (context) => {
-        if (typeof window !== "undefined") {
-          setTimeout(() => {
-            context.store.loaded = true;
-          }, 500);
-        }
-      },
     },
   }
 );
