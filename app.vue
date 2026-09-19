@@ -1,17 +1,21 @@
 <template>
-  <div>
+  <ToastProvider>
     <router-view v-slot="{ Component }">
       <transition :name="transition">
         <component :is="Component" />
       </transition>
     </router-view>
     <Undo />
-  </div>
+    <ToastViewport
+      class="fixed bottom-0 left-0 z-[100] m-4 flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2 outline-none"
+    />
+  </ToastProvider>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { ToastProvider, ToastViewport } from "reka-ui";
 import Undo from "~/components/Undo.vue";
 
 // Only the budget detail (meta.slide) animates: it pushes in over the stationary
@@ -40,35 +44,12 @@ useRouter().afterEach((to, from) => {
 </script>
 
 <style>
-html {
-  /* Opt into both schemes so the `Canvas` background color (and UA controls)
-     follow the OS. WebKit resolves `Canvas` to white without this, even in dark. */
-  color-scheme: light dark;
-  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
-}
-
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-  margin: 0;
-}
-
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  /* Opaque (matching the page background, incl. dark) so a page always covers what
-     is beneath it during a transition. `Canvas` is the system default background. */
-  background-color: Canvas;
+  /* Opaque so a page always covers what is beneath it during a transition. */
+  background-color: var(--color-canvas);
 }
 
 .page-enter-active,
@@ -126,50 +107,5 @@ html {
   left: 0;
   width: 100%;
   z-index: -1;
-}
-</style>
-
-<style lang="less">
-/* Shared layout primitives used across pages (list + budget). Global, not scoped —
-   Nuxt bundled all component CSS eagerly; Vite code-splits per route, so these must
-   live here to stay present on every page. */
-textarea,
-input,
-button {
-  font-size: inherit;
-}
-
-.nav {
-  position: sticky;
-  background: rgba(245, 248, 255, 95%);
-  z-index: 1;
-  left: 0;
-  top: 0;
-  right: 0;
-
-  &-view {
-    float: right;
-  }
-}
-.main {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  position: relative;
-}
-
-.box {
-  padding: 10px;
-}
-.btn {
-  appearance: none;
-  background: transparent;
-  border: none;
-  padding: 2px 0px;
-  display: inline-block;
-  text-decoration: none;
-  color: #003eb4;
-  font-family: inherit;
-  font-weight: 600;
 }
 </style>

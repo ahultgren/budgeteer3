@@ -1,19 +1,33 @@
 <template>
-  <div class="container">
-    <h1>Import data from file</h1>
-    <input type="file" name="file" @change="changeFile" />
-    <p v-if="importedData">
-      <textarea v-model="importedData" disabled></textarea>
-      <button @click="importData()">Import!</button>
+  <div class="container gap-4 p-4">
+    <h1 class="text-3xl font-bold">Import data from file</h1>
+    <input
+      type="file"
+      name="file"
+      @change="changeFile"
+      class="text-muted file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-2 file:font-semibold file:text-accent"
+    />
+    <p v-if="importedData" class="flex flex-col gap-3">
+      <textarea
+        v-model="importedData"
+        disabled
+        class="h-48 w-full resize-none rounded-2xl bg-card p-3 text-sm text-muted outline-none"
+      ></textarea>
+      <button
+        @click="importData()"
+        class="self-start rounded-full bg-accent px-5 py-2 font-semibold text-white active:brightness-90"
+      >
+        Import!
+      </button>
     </p>
     <p>
-      <router-link to="/">Return to app</router-link>
+      <router-link to="/" class="font-semibold text-accent">Return to app</router-link>
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, VueElement } from "vue";
+import { ref } from "vue";
 import { usePeriodStore } from "~/stores/store";
 
 const store = usePeriodStore();
@@ -24,15 +38,11 @@ const changeFile = (event: any) => {
     return;
   }
 
-  console.log("FILE", event, event.target.files[0]);
-
   const reader = new FileReader();
   reader.onload = (progressEvent: ProgressEvent<FileReader>) => {
     if (!progressEvent?.target?.result) {
       return;
     }
-
-    console.log("result", progressEvent.target.result);
     importedData.value += progressEvent.target.result as string;
   };
 
@@ -52,5 +62,3 @@ const importData = () => {
   }
 };
 </script>
-
-<style lang="less"></style>

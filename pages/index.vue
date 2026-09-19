@@ -1,50 +1,59 @@
 <template>
   <div class="container">
-    <Drawer v-model:visible="showMenu" header="Budgeteer">
-      <Menu :model="menuItems">
-        <template #item="{ item, props }">
-          <router-link class="p-menu-item-link" v-if="item.route" :to="item.route">
-            <span :class="item.icon" />
-            <span class="ml-2">{{ item.label }}</span>
-          </router-link>
+    <DialogRoot v-model:open="showMenu">
+      <DialogPortal>
+        <DialogOverlay
+          class="fixed inset-0 z-40 bg-black/60 data-[state=open]:animate-[fade-in_0.2s_ease-out]"
+        />
+        <DialogContent
+          class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-card p-6 shadow-2xl focus:outline-none data-[state=open]:animate-[drawer-in_0.25s_ease-out] data-[state=closed]:animate-[drawer-out_0.2s_ease-in]"
+        >
+          <DialogTitle class="mb-6 text-2xl font-bold">Budgeteer</DialogTitle>
           <a
-            v-else
-            :href="item.url"
-            :target="item.target"
-            v-bind="props.action"
-            :download="item.download"
+            :href="backupUrl"
+            download="budgeteer-backup.json"
+            target="_blank"
+            class="flex items-center gap-3 rounded-xl px-2 py-3 text-accent hover:bg-white/5"
           >
-            <span :class="item.icon" />
-            <span class="ml-2">{{ item.label }}</span>
+            <Download :size="20" />Download backup
           </a>
-        </template>
-      </Menu>
-      <div class="drawer-version">{{ version }}</div>
-    </Drawer>
-    <div class="nav box">
-      <Button
-        icon="pi pi-bars"
-        size="small"
+          <router-link
+            to="/import"
+            class="flex items-center gap-3 rounded-xl px-2 py-3 text-accent hover:bg-white/5"
+            @click="showMenu = false"
+          >
+            <Upload :size="20" />Import backup
+          </router-link>
+          <div class="mt-auto text-xs text-muted">{{ version }}</div>
+        </DialogContent>
+      </DialogPortal>
+    </DialogRoot>
+
+    <div class="flex items-center justify-between px-4 pt-4 pb-2">
+      <button
         aria-label="Open menu"
+        class="flex size-10 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
         @click="showMenu = true"
-      />
-      <Button
-        icon="pi pi-pen-to-square"
-        size="small"
-        class="nav-add"
+      >
+        <Menu :size="22" />
+      </button>
+      <button
         aria-label="Create new ledger"
+        class="flex size-10 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
         @click="store.addLedger()"
-      />
+      >
+        <SquarePen :size="22" />
+      </button>
     </div>
-    <div class="budgetlist">
-      <TransitionGroup name="periods">
+
+    <div class="px-4 pt-4 pb-8">
+      <TransitionGroup tag="div" name="periods" class="budgetlist overflow-hidden rounded-2xl bg-card">
         <SwipeOut v-for="period in reversePeriods" :key="period.id">
           <template #default>
             <router-link :to="'/budget/' + period.id" class="budgetlist-item">
               <span class="budgetlist-item-title">{{ title(period.ledger) }}</span>
               <span class="budgetlist-item-summary">
-                {{ totalSpent(period) }} /
-                {{ totalBudget(period) }}
+                {{ totalSpent(period) }} / {{ totalBudget(period) }}
               </span>
             </router-link>
           </template>
@@ -53,7 +62,7 @@
               class="action-button swipeout-action"
               @click="store.deleteLedger(period)"
             >
-              <span class="pi pi-trash action-button-icon"></span>Delete
+              <Trash2 :size="20" class="action-button-icon" />Delete
             </button>
           </template>
         </SwipeOut>
@@ -66,6 +75,14 @@
 import { computed, ref } from "vue";
 import { totalSpent, totalBudget } from "~/assets/scripts";
 import { SwipeOut } from "@ahultgren/vue3-swipe-actions";
+import {
+  DialogRoot,
+  DialogPortal,
+  DialogOverlay,
+  DialogContent,
+  DialogTitle,
+} from "reka-ui";
+import { Menu, SquarePen, Download, Upload, Trash2 } from "@lucide/vue";
 import { usePeriodStore } from "~/stores/store";
 
 const store = usePeriodStore();
@@ -74,86 +91,90 @@ const version = __APP_VERSION__;
 const reversePeriods = computed(() => store.periods.slice().reverse());
 const showMenu = ref(false);
 
-const menuItems = computed(() => [
-  {
-    label: "Download backup",
-    icon: "pi pi-download",
-    url: downloadData({ periods: store.periods }),
-    download: "budgeteer-backup.json",
-    target: "_blank",
-  },
-  {
-    label: "Import backup",
-    icon: "pi pi-upload",
-    route: "/import",
-  },
-]);
+const backupUrl = computed(() =>
+  URL.createObjectURL(
+    new Blob([JSON.stringify({ periods: store.periods })], {
+      type: "application/json",
+    })
+  )
+);
 
-const title = (ledger: string) => {
-  return ledger.split("\n")[0];
-};
-
-function downloadData(data: Record<string, any>) {
-  const json = JSON.stringify(data);
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  return url;
-}
+const title = (ledger: string) => ledger.split("\n")[0];
 </script>
 
 <style lang="less">
 @import "@ahultgren/vue3-swipe-actions/style.css";
 
-.drawer-version {
-  position: absolute;
-  bottom: 1rem;
-  left: 1.25rem;
-  font-size: 12px;
-  color: #888;
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
-
-.budgetlist {
-  &-item {
-    text-decoration: none;
-    color: inherit;
-    margin: 0 10px;
-    border-bottom: 1px solid #eee;
-    display: block;
-    padding: 12px 0;
-
-    &-title {
-      display: block;
-      margin-bottom: 3px;
-    }
-
-    &-summary {
-      display: block;
-      font-size: 14px;
-      color: #666;
-    }
+@keyframes drawer-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
-.nav-add {
-  float: right;
+/* Hairline divider between rows, inset to align with the title text (measured from
+   iOS Notes: 28px content inset, #38383B separator). No divider above the first row. */
+.budgetlist .swipeout + .swipeout::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 28px;
+  right: 16px;
+  height: 1px;
+  background-color: var(--color-separator);
+  z-index: 1;
+}
+
+.budgetlist-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 10px 16px 10px 28px;
+
+  &-title {
+    display: block;
+    font-size: 17px;
+    line-height: 1.25;
+    font-weight: 600;
+  }
+
+  &-summary {
+    display: block;
+    font-size: 15px;
+    line-height: 1.25;
+    color: var(--color-muted);
+  }
 }
 
 .action-button {
   display: flex;
   align-items: center;
-  padding: 0 3rem;
+  gap: 8px;
   cursor: pointer;
   left: 0;
-
   appearance: none;
   border: none;
   background-color: rgb(255, 59, 48);
   color: white;
-  padding: 0 15px;
-
-  &-icon {
-    padding-right: 8px;
-  }
+  padding: 0 22px;
 }
 
 .transition-right {

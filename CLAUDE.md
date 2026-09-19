@@ -15,7 +15,7 @@ npm run test       # Unit (Vitest) + e2e (Playwright); or test:unit / test:e2e
 
 Budgeteer is a **Vite + Vue 3 SPA** (installable PWA via `vite-plugin-pwa`) for personal expense tracking. There is no SSR and no backend — all data lives in the browser, persisted to `localStorage` via `pinia-plugin-persistedstate`.
 
-Entry is `main.ts` (creates the app, registers Pinia + persist plugin, Vue Router, PrimeVue, and the PrimeVue components used in templates) → `app.vue` (root, wraps `<router-view>` in a `<transition>` and mounts `Undo`). Routes are declared in `router.ts`.
+Entry is `main.ts` (creates the app, registers Pinia + persist plugin and Vue Router, imports `main.css`) → `app.vue` (root, wraps `<router-view>` in a `<transition>`, mounts `Undo`, and provides the reka-ui `ToastProvider`/`ToastViewport`). Routes are declared in `router.ts`.
 
 ### Data model
 
@@ -23,8 +23,6 @@ Entry is `main.ts` (creates the app, registers Pinia + persist plugin, Vue Route
 
 - `Period` — one budget period, with a freeform `ledger: string`, a `budget: Record<string, number>` (category → budget amount), and a UUID `id`
 - `Budget` — alias for `Record<string, number>`
-
-The `loaded` flag is set after a 500ms delay once the persisted state has hydrated, and gates rendering of the period list. It is omitted from persistence (`persist.omit`) and set in `persist.afterHydrate`.
 
 ### Ledger format
 
@@ -57,7 +55,9 @@ The `[currentPeriod]` directory name is a leftover from Nuxt's file-based routin
 
 ### UI
 
-Uses **PrimeVue 4** with a custom Aura preset (violet primary color, defined in `main.ts`). Icons via `primeicons`. Swipe actions via `@ahultgren/vue3-swipe-actions`. Styling uses **Less**. Note: Vite code-splits CSS per route, so shared **non-scoped** layout styles (`.nav`, `.box`, `.btn`, base resets) live in `app.vue`'s global `<style>` — putting them in a route component's non-scoped block would make them vanish on pages that haven't loaded that chunk.
+Dark-only iOS-Notes look, purple accent. Styling is **Tailwind v4** (`@tailwindcss/vite`, entry `main.css` with an `@theme` palette — `--color-accent` is the single retint knob). The menu drawer and the undo toast use **reka-ui** headless primitives (`Dialog`, `Toast`); icons via **`@lucide/vue`**. Swipe actions via `@ahultgren/vue3-swipe-actions`. Tailwind Preflight handles resets (no hand-rolled `*{margin:0}`). `less` is still a devDep — `index.vue` uses nested `<style lang="less">` for the swipe/keyframe CSS.
+
+Note: Vite code-splits CSS per route. Tailwind utilities are global (imported in `main.ts`) so they're always present — but a component's `<style>` keyframes/classes exist only when that component's chunk is loaded. Shared non-scoped layout (`.container`, the router-transition classes) lives in `app.vue`; the swipe-animation CSS + drawer keyframes live in `index.vue` (only used there).
 
 ## Build & deploy
 

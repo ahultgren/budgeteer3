@@ -1,6 +1,9 @@
 <template>
   <div class="ledger">
-    <textarea v-model="period.ledger" class="input box"></textarea>
+    <textarea
+      v-model="period.ledger"
+      class="absolute top-0 h-full w-full resize-none border-0 bg-transparent px-7 pb-40 font-mono text-base leading-relaxed text-ink outline-none"
+    ></textarea>
   </div>
 </template>
 
@@ -12,25 +15,11 @@ defineProps<{
 }>();
 </script>
 
-<style lang="less" scoped>
+<style scoped>
 .ledger {
   flex-grow: 1;
   width: 100%;
   position: relative;
-  font-family: monospace;
   backface-visibility: hidden;
-}
-.input {
-  width: 100%;
-  font-size: inherit;
-  font-family: inherit;
-  word-spacing: inherit;
-
-  border: 0;
-  height: 100%;
-  padding-bottom: 150px;
-  position: absolute;
-  top: 0;
-  background-color: transparent;
 }
 </style>

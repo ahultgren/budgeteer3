@@ -1,16 +1,21 @@
 <template>
   <div v-if="currentPeriod" class="container">
-    <div class="nav box">
-      <router-link class="btn" to="/"
-        ><Button size="small" icon="pi pi-chevron-left" label="Budgets"
-      /></router-link>
-      <Button
-        class="nav-view"
-        size="small"
-        icon="pi pi-sync"
+    <div class="flex items-center justify-between px-4 pt-4 pb-2">
+      <router-link
+        to="/"
+        aria-label="Budgets"
+        class="flex size-10 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
+      >
+        <ChevronLeft :size="22" />
+      </router-link>
+      <button
+        :aria-label="currentView === 'Ledger' ? 'Summary' : 'Ledger'"
+        class="flex size-10 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
         @click="toggleView()"
-        :label="currentView === 'Ledger' ? 'Summary' : 'Ledger'"
-      />
+      >
+        <ChartBarDecreasing v-if="currentView === 'Ledger'" :size="20" />
+        <AlignLeft v-else :size="20" />
+      </button>
     </div>
 
     <div class="main">
@@ -29,6 +34,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
+import { ChevronLeft, ChartBarDecreasing, AlignLeft } from "@lucide/vue";
 import { usePeriodStore } from "~/stores/store";
 import Flip from "~/components/Flip.vue";
 import Ledger from "~/components/Ledger.vue";
@@ -44,3 +50,12 @@ const toggleView = () => {
   currentView.value = currentView.value === "Ledger" ? "Overview" : "Ledger";
 };
 </script>
+
+<style scoped>
+.main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  position: relative;
+}
+</style>

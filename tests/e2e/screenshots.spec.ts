@@ -2,6 +2,12 @@ import { test, expect } from "@playwright/test";
 import { seedStore } from "./seed";
 
 test.beforeEach(async ({ page }) => {
+  // Block the PWA service worker so screenshots always reflect the current build,
+  // never a stale precached bundle. (offline.spec.ts keeps the SW on purpose.)
+  await page.addInitScript(() => {
+    const sw = (navigator as any).serviceWorker;
+    if (sw) sw.register = () => Promise.reject(new Error("SW disabled in screenshot tests"));
+  });
   await seedStore(page);
 });
 
