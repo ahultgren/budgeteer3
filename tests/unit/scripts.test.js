@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { currentCategories, totalSpent, totalBudget } from "../../assets/scripts.js";
+import { currentCategories, totalSpent, totalBudget, formatAmount } from "../../assets/scripts.js";
 
 // The parser skips the first ledger line as the title, so prepend one.
 const period = (ledgerBody, budget = {}) => ({
@@ -121,5 +121,21 @@ describe("totalSpent / totalBudget", () => {
 
   it("propagates NaN from an undefined currency", () => {
     expect(Number.isNaN(totalSpent(period("100usd food")))).toBe(true);
+  });
+});
+
+describe("formatAmount — thousands grouping", () => {
+  const NBSP = String.fromCharCode(160);
+  it("leaves values under 1000 untouched", () => {
+    expect(formatAmount(700)).toBe("700");
+    expect(formatAmount(0)).toBe("0");
+  });
+  it("groups thousands with a no-break space", () => {
+    expect(formatAmount(17788)).toBe(`17${NBSP}788`);
+    expect(formatAmount(1000000)).toBe(`1${NBSP}000${NBSP}000`);
+  });
+  it("rounds and handles negatives", () => {
+    expect(formatAmount(1234.6)).toBe(`1${NBSP}235`);
+    expect(formatAmount(-1234)).toBe(`-1${NBSP}234`);
   });
 });

@@ -32,17 +32,17 @@
     <div class="flex items-center justify-between px-4 pt-4 pb-2">
       <button
         aria-label="Open menu"
-        class="flex size-10 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
+        class="flex size-11 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
         @click="showMenu = true"
       >
-        <Menu :size="22" />
+        <Menu :size="24" />
       </button>
       <button
         aria-label="Create new ledger"
-        class="flex size-10 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
+        class="flex size-11 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
         @click="store.addLedger()"
       >
-        <SquarePen :size="22" />
+        <SquarePen :size="24" />
       </button>
     </div>
 
@@ -53,7 +53,7 @@
             <router-link :to="'/budget/' + period.id" class="budgetlist-item">
               <span class="budgetlist-item-title">{{ title(period.ledger) }}</span>
               <span class="budgetlist-item-summary">
-                {{ totalSpent(period) }} / {{ totalBudget(period) }}
+                {{ formatAmount(totalSpent(period)) }} / {{ formatAmount(totalBudget(period)) }}
               </span>
             </router-link>
           </template>
@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { totalSpent, totalBudget } from "~/assets/scripts";
+import { totalSpent, totalBudget, formatAmount } from "~/assets/scripts";
 import { SwipeOut } from "@ahultgren/vue3-swipe-actions";
 import {
   DialogRoot,
@@ -154,6 +154,7 @@ const title = (ledger: string) => ledger.split("\n")[0];
     font-size: 17px;
     line-height: 1.25;
     font-weight: 600;
+    margin-bottom: 1px;
   }
 
   &-summary {

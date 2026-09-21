@@ -59,3 +59,10 @@ export function totalBudget(period) {
       .reduce((a, b) => a + b, 0)
   );
 }
+
+// Thousands grouped with a no-break space, e.g. 17788 -> "17 788".
+export function formatAmount(n) {
+  return Math.round(n)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}

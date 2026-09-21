@@ -6,7 +6,7 @@
       class="flex items-center py-2"
     >
       <span>{{ item.name }}</span>
-      <span class="ml-auto tabular-nums">{{ Math.round(item.amount) }}</span>
+      <span class="ml-auto tabular-nums">{{ formatAmount(item.amount) }}</span>
       <span class="mx-2 text-muted">/</span>
       <input
         v-model="period.budget[item.name]"
@@ -15,15 +15,15 @@
     </div>
     <div class="mt-3 flex items-center border-t border-white/15 pt-3 font-semibold">
       <span>Total:</span>
-      <span class="ml-auto tabular-nums">{{ totalSpent(period) }}</span>
+      <span class="ml-auto tabular-nums">{{ formatAmount(totalSpent(period)) }}</span>
       <span class="mx-2 text-muted">/</span>
-      <span class="w-16 pr-px text-right tabular-nums">{{ totalBudget(period) }}</span>
+      <span class="w-16 pr-px text-right tabular-nums">{{ formatAmount(totalBudget(period)) }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { currentCategories, totalSpent, totalBudget } from "~/assets/scripts";
+import { currentCategories, totalSpent, totalBudget, formatAmount } from "~/assets/scripts";
 
 defineProps<{
   period: {

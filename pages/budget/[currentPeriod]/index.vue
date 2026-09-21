@@ -4,17 +4,17 @@
       <router-link
         to="/"
         aria-label="Budgets"
-        class="flex size-10 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
+        class="flex size-11 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
       >
-        <ChevronLeft :size="22" />
+        <ChevronLeft :size="28" />
       </router-link>
       <button
         :aria-label="currentView === 'Ledger' ? 'Summary' : 'Ledger'"
-        class="flex size-10 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
+        class="flex size-11 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
         @click="toggleView()"
       >
-        <ChartBarDecreasing v-if="currentView === 'Ledger'" :size="20" />
-        <AlignLeft v-else :size="20" />
+        <ChartBarDecreasing v-if="currentView === 'Ledger'" :size="22" />
+        <AlignLeft v-else :size="22" />
       </button>
     </div>
 
