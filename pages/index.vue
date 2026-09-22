@@ -29,22 +29,14 @@
       </DialogPortal>
     </DialogRoot>
 
-    <div class="flex items-center justify-between px-4 pt-4 pb-2">
-      <button
-        aria-label="Open menu"
-        class="flex size-11 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
-        @click="showMenu = true"
-      >
-        <Menu :size="24" />
-      </button>
-      <button
-        aria-label="Create new ledger"
-        class="flex size-11 items-center justify-center rounded-full bg-white/10 text-accent active:bg-white/20"
-        @click="store.addLedger()"
-      >
-        <SquarePen :size="24" />
-      </button>
-    </div>
+    <TopBar>
+      <template #left>
+        <TopBarButton :icon="Menu" aria-label="Open menu" @click="showMenu = true" />
+      </template>
+      <template #right>
+        <TopBarButton :icon="SquarePen" aria-label="Create new ledger" @click="store.addLedger()" />
+      </template>
+    </TopBar>
 
     <div class="px-4 pt-4 pb-8">
       <TransitionGroup tag="div" name="periods" class="budgetlist overflow-hidden rounded-2xl bg-card">
@@ -84,6 +76,8 @@ import {
 } from "reka-ui";
 import { Menu, SquarePen, Download, Upload, Trash2 } from "@lucide/vue";
 import { usePeriodStore } from "~/stores/store";
+import TopBar from "~/components/TopBar.vue";
+import TopBarButton from "~/components/TopBarButton.vue";
 
 const store = usePeriodStore();
 
