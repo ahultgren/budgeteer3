@@ -1,3 +1,36 @@
+# Search — find a transaction across all ledgers
+
+Plan: ~/.prn-claude/plans/piped-humming-rabbit.md
+
+- [x] 1. Matcher `fold` / `findMatches` / `highlightSegments` in `assets/scripts.js` + unit tests
+- [x] 2. Home: search field, URL `q`, filtered rows with highlighted line + "+N more", empty state
+- [x] 3. Pull-to-reveal: pre-scroll, scroll-driven fade under TopBar, scroll-snap
+- [x] 4. Budget page passes `q` to Ledger
+- [x] 5. Ledger backdrop highlights (`::highlight`), scroll sync, focus/blur, scroll to first match
+- [x] 6. e2e `search.spec.ts` + wrap-parity pixel test; existing screenshots unchanged; `search.png` baseline
+- [x] 7. CLAUDE.md Search section
+- [ ] 8. On-device iPhone check (user): alignment, reveal/snap feel, keyboard
+
+## Review
+
+- Unit: 43/43 (13 new: case, AND, accents both ways, å/ä/ö distinct, NFD offsets, merged ranges, trim).
+- e2e: 12/12 (5 new). `list.png` and `ledger.png` unchanged, which proves the hidden field is invisible
+  and the layout didn't shift. New `search.png` baseline reviewed.
+- Wrap parity: the mirror and textarea screenshots match to within 3 levels (AA noise) at scrollTop 0 and 1232.
+  Findings:
+  - A deep link to `/budget/…` plays the push slide on load (the lazy route enters after the first render;
+    pre-existing), so the test waits for `*-enter-active` to clear. `getAnimations()` is empty in the frame
+    before the transition starts, so it isn't a reliable wait.
+  - At a fractional device-pixel scroll (DPR 2.75) the layers round half a device pixel apart: invisible,
+    but it fails an exact diff. The test uses a whole-device-pixel offset.
+- Firefox has no CSS scroll-driven animations, so the field shows through the TopBar there. Tried a JS
+  scroll listener, then reverted: Firefox is test-only, and the CSS version runs on the compositor
+  with no JS. The `firefox` Playwright project covers filtering and ledger highlights, not the fade.
+- Not verifiable here: the iOS textarea inner-padding quirk. If highlights sit about 3px off on iPhone,
+  add `supports-[-webkit-touch-callout:none]:px-[31px]` to the mirror.
+
+---
+
 # Migration safety net
 
 Goal: a test suite that runs on the **current Nuxt app** (baseline) and **unchanged** on the

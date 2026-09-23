@@ -38,14 +38,49 @@
       </template>
     </TopBar>
 
-    <div class="px-4 pt-4 pb-8">
-      <TransitionGroup tag="div" name="periods" class="budgetlist overflow-hidden rounded-2xl bg-card">
-        <SwipeOut v-for="period in reversePeriods" :key="period.id">
+    <!-- view() inset 68px = TopBar height, so the field fades out as it passes under the bar. -->
+    <div
+      ref="searchField"
+      class="snap-start px-4 pt-2 supports-[animation-timeline:view()]:animate-search-fade supports-[animation-timeline:view()]:[animation-timeline:view(68px_0px)] supports-[animation-timeline:view()]:[animation-range:exit]"
+    >
+      <label class="flex h-9 items-center gap-1.5 rounded-xl bg-card px-2 text-muted">
+        <Search :size="18" class="shrink-0" />
+        <input
+          v-model="query"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+          enterkeyhint="search"
+          autocomplete="off"
+          class="min-w-0 flex-1 bg-transparent text-[17px] text-ink outline-none placeholder:text-muted"
+        />
+      </label>
+    </div>
+
+    <div class="min-h-screen snap-start px-4 pt-4 pb-8">
+      <TransitionGroup
+        tag="div"
+        name="periods"
+        :css="!searching"
+        class="budgetlist overflow-hidden rounded-2xl bg-card"
+      >
+        <SwipeOut v-for="{ period, titleMatch, lineMatches } in results" :key="period.id">
           <template #default>
-            <router-link :to="'/budget/' + period.id" class="budgetlist-item">
-              <span class="budgetlist-item-title">{{ title(period.ledger) }}</span>
+            <router-link :to="{ path: '/budget/' + period.id, query: route.query }" class="budgetlist-item">
+              <span class="budgetlist-item-title">
+                <Highlighted v-if="titleMatch" :text="titleMatch.text" :ranges="titleMatch.ranges" />
+                <template v-else>{{ title(period.ledger) }}</template>
+              </span>
               <span class="budgetlist-item-summary">
-                {{ formatAmount(totalSpent(period)) }} / {{ formatAmount(totalBudget(period)) }}
+                <span v-if="lineMatches.length" class="flex gap-1">
+                  <span class="truncate">
+                    <Highlighted :text="lineMatches[0].text" :ranges="lineMatches[0].ranges" />
+                  </span>
+                  <span v-if="lineMatches.length > 1" class="shrink-0">+{{ lineMatches.length - 1 }} more</span>
+                </span>
+                <template v-else>
+                  {{ formatAmount(totalSpent(period)) }} / {{ formatAmount(totalBudget(period)) }}
+                </template>
               </span>
             </router-link>
           </template>
@@ -59,13 +94,21 @@
           </template>
         </SwipeOut>
       </TransitionGroup>
+      <p v-if="searching && !results.length" class="py-8 text-center text-muted">No results</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { totalSpent, totalBudget, formatAmount } from "~/assets/scripts";
+import { computed, h, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {
+  totalSpent,
+  totalBudget,
+  formatAmount,
+  findMatches,
+  highlightSegments,
+} from "~/assets/scripts";
 import { SwipeOut } from "@ahultgren/vue3-swipe-actions";
 import {
   DialogRoot,
@@ -74,12 +117,14 @@ import {
   DialogContent,
   DialogTitle,
 } from "reka-ui";
-import { Menu, SquarePen, Download, Upload, Trash2 } from "@lucide/vue";
+import { Menu, SquarePen, Download, Upload, Trash2, Search } from "@lucide/vue";
 import { usePeriodStore } from "~/stores/store";
 import TopBar from "~/components/TopBar.vue";
 import TopBarButton from "~/components/TopBarButton.vue";
 
 const store = usePeriodStore();
+const route = useRoute();
+const router = useRouter();
 
 const version = __APP_VERSION__;
 const reversePeriods = computed(() => store.periods.slice().reverse());
@@ -94,6 +139,37 @@ const backupUrl = computed(() =>
 );
 
 const title = (ledger: string) => ledger.split("\n")[0];
+
+const query = computed({
+  get: () => (route.query.q as string) ?? "",
+  set: (q: string) => router.replace({ query: q ? { q } : {} }),
+});
+const searching = computed(() => query.value.trim() !== "");
+
+const results = computed(() =>
+  reversePeriods.value.flatMap((period) => {
+    if (!searching.value) return [{ period, titleMatch: undefined, lineMatches: [] }];
+    const matches = findMatches(period.ledger, query.value);
+    if (!matches.length) return [];
+    return [
+      {
+        period,
+        titleMatch: matches[0].index === 0 ? matches[0] : undefined,
+        lineMatches: matches.filter((m) => m.index > 0),
+      },
+    ];
+  })
+);
+
+const Highlighted = ({ text, ranges }: { text: string; ranges: [number, number][] }) =>
+  highlightSegments(text, ranges).map((s) =>
+    s.hit ? h("mark", { class: "rounded-sm bg-accent/30 text-ink" }, s.text) : s.text
+  );
+
+const searchField = ref<HTMLElement>();
+onMounted(() => {
+  window.scrollTo(0, searching.value ? 0 : searchField.value!.offsetHeight);
+});
 </script>
 
 <style lang="less">

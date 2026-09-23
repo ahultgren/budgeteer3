@@ -17,7 +17,11 @@
     <div class="main">
       <Flip>
         <template #front>
-          <Ledger v-if="currentView === 'Ledger'" :period="currentPeriod"></Ledger>
+          <Ledger
+            v-if="currentView === 'Ledger'"
+            :period="currentPeriod"
+            :query="route.query.q as string | undefined"
+          ></Ledger>
         </template>
         <template #back>
           <Overview v-if="currentView === 'Overview'" :period="currentPeriod"></Overview>

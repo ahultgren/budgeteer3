@@ -11,7 +11,15 @@ export default defineConfig({
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
   },
-  projects: [{ name: "mobile-chromium", use: { ...devices["Pixel 5"] } }],
+  projects: [
+    { name: "mobile-chromium", use: { ...devices["Pixel 5"] } },
+    {
+      name: "firefox",
+      use: { browserName: "firefox", viewport: devices["Pixel 5"].viewport },
+      testMatch: "search.spec.ts",
+      grep: /filters periods|until the ledger is focused/,
+    },
+  ],
   webServer: {
     command: "npm run build && npm run preview",
     url: "http://localhost:3000",

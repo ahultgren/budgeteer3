@@ -48,10 +48,17 @@ The `[currentPeriod]` directory name is a leftover from Nuxt's file-based routin
 
 ### Components
 
-- `Ledger.vue` — a `<textarea>` bound directly to `period.ledger`
+- `Ledger.vue` — a `<textarea>` bound directly to `period.ledger`, with a search-highlight mirror behind it
 - `Overview.vue` — parsed category table with inline budget inputs bound to `period.budget[name]`
 - `Flip.vue` — CSS flip animation wrapping Ledger/Overview toggle
 - `Undo.vue` — toast/button for undoing the last ledger deletion (uses `beforeLastDeletion` state)
+
+### Search
+
+`findMatches(text, query)` in `assets/scripts.js` returns matching lines with line-relative ranges (case- and accent-insensitive, but å/ä/ö stay distinct; multi-word = AND on the same line). The query lives in the URL (`/?q=`, `/budget/:id?q=`).
+
+- Home: the field sits under the TopBar and starts scrolled out of view. A CSS scroll-driven animation (`view()` timeline inset by the 68px TopBar) fades it out under the transparent bar; browsers without scroll-driven animations (Firefox) just show it through the bar, and `index.html` has proximity scroll-snap to shown/hidden (`scroll-pt-[68px]` = TopBar height).
+- Ledger: a transparent-text mirror `<div>` behind the transparent textarea is painted with `CSS.highlights` / `::highlight(search)`, and hidden while the textarea is focused. It shares the textarea's exact text-box classes; `tests/e2e/search.spec.ts` pixel-diffs the two layers to guard alignment.
 
 ### UI
 

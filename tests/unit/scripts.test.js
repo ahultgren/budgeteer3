@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { currentCategories, totalSpent, totalBudget, formatAmount } from "../../assets/scripts.js";
+import {
+  currentCategories,
+  totalSpent,
+  totalBudget,
+  formatAmount,
+  findMatches,
+  highlightSegments,
+} from "../../assets/scripts.js";
 
 // The parser skips the first ledger line as the title, so prepend one.
 const period = (ledgerBody, budget = {}) => ({
@@ -137,5 +144,72 @@ describe("formatAmount — thousands grouping", () => {
   it("rounds and handles negatives", () => {
     expect(formatAmount(1234.6)).toBe(`1${NBSP}235`);
     expect(formatAmount(-1234)).toBe(`-1${NBSP}234`);
+  });
+});
+
+describe("findMatches", () => {
+  const hits = (text, query) =>
+    findMatches(text, query).map((m) => m.ranges.map(([s, e]) => m.text.slice(s, e)));
+
+  it("matches case-insensitively and reports line index, offset, and ranges", () => {
+    expect(findMatches("Title\n199 home Lamp\n5 food", "lamp")).toEqual([
+      { index: 1, offset: 6, text: "199 home Lamp", ranges: [[9, 13]] },
+    ]);
+  });
+
+  it("returns [] for a blank query", () => {
+    expect(findMatches("Title\n100 food", "  ")).toEqual([]);
+  });
+
+  it("requires every word on the same line, in any order", () => {
+    const text = "Title\n100 ikea lamp\n50 ikea chair\n20 lamp shade";
+    expect(findMatches(text, "lamp ikea").map((m) => m.index)).toEqual([1]);
+    expect(hits(text, "lamp ikea")).toEqual([["ikea", "lamp"]]);
+  });
+
+  it("finds every occurrence and merges overlapping ranges", () => {
+    expect(hits("x\ncoffee coffee", "coffee")).toEqual([["coffee", "coffee"]]);
+    expect(hits("x\nfoodie", "foo odi")).toEqual([["foodi"]]);
+  });
+
+  it("includes the title line as index 0", () => {
+    expect(findMatches("Trip\n500 hotel", "trip")).toEqual([
+      { index: 0, offset: 0, text: "Trip", ranges: [[0, 4]] },
+    ]);
+  });
+
+  it("ignores accents in both directions", () => {
+    expect(hits("x\n40 café", "cafe")).toEqual([["café"]]);
+    expect(hits("x\n40 cafe", "CAFÉ")).toEqual([["cafe"]]);
+  });
+
+  it("keeps å/ä/ö distinct from a/o", () => {
+    expect(findMatches("x\n30 köp", "kop")).toEqual([]);
+    expect(findMatches("x\n30 kop", "köp")).toEqual([]);
+    expect(hits("x\n30 Åre", "åre")).toEqual([["Åre"]]);
+  });
+
+  it("maps ranges back to the original text when it is decomposed (NFD)", () => {
+    const line = "40 café hårfin";
+    expect(hits("x\n" + line, "café")).toEqual([["café"]]);
+    expect(hits("x\n" + line, "hår")).toEqual([["hår"]]);
+  });
+});
+
+describe("highlightSegments", () => {
+  it("splits a line into hit and non-hit segments", () => {
+    expect(highlightSegments("199 home lamp", [[9, 13]])).toEqual([
+      { text: "199 home ", hit: false },
+      { text: "lamp", hit: true },
+    ]);
+  });
+
+  it("trims the start with an ellipsis when the first hit is far into the line", () => {
+    const text = "2026-09-01 1299 electronics headphones from the store";
+    const start = text.indexOf("store");
+    const segments = highlightSegments(text, [[start, start + 5]]);
+    expect(segments[0].text).toBe("…");
+    expect(segments.map((s) => s.text).join("")).toBe("…" + text.slice(start - 10));
+    expect(segments.at(-1)).toEqual({ text: "store", hit: true });
   });
 });
