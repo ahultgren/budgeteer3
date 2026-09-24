@@ -2,7 +2,7 @@
   <div v-if="currentPeriod" class="container">
     <TopBar>
       <template #left>
-        <TopBarButton :icon="ChevronLeft" :size="28" to="/" aria-label="Budgets" />
+        <TopBarButton :icon="ChevronLeft" :size="28" aria-label="Budgets" @click="backToList()" />
       </template>
       <template #right>
         <TopBarButton
@@ -36,6 +36,7 @@ import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { ChevronLeft, ChartBarDecreasing, AlignLeft } from "@lucide/vue";
 import { usePeriodStore } from "~/stores/store";
+import { backToList } from "~/router";
 import TopBar from "~/components/TopBar.vue";
 import TopBarButton from "~/components/TopBarButton.vue";
 import Flip from "~/components/Flip.vue";

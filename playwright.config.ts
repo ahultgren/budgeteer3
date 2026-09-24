@@ -17,7 +17,7 @@ export default defineConfig({
       name: "firefox",
       use: { browserName: "firefox", viewport: devices["Pixel 5"].viewport },
       testMatch: "search.spec.ts",
-      grep: /filters periods|until the ledger is focused/,
+      grep: /snaps open or hides|filters periods|until the ledger is focused|Budgets button/,
     },
   ],
   webServer: {

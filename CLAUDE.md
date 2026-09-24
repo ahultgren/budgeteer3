@@ -44,6 +44,8 @@ Routes are hand-declared in `router.ts` (`createWebHistory("/")`, lazy-imported 
 - `/budget/:currentPeriod` (`pages/budget/[currentPeriod]/index.vue`) — budget detail view, toggles between Ledger and Overview; route meta sets the `slideInOut` transition
 - `/import` (`pages/import.vue`) — restore from a backup JSON file
 
+In-app "back" buttons call `backToList()` (`router.ts`) rather than linking to `/`: it uses `router.back()` when the list is the previous entry (keeps `?q=`, never grows history), otherwise `router.replace("/")`.
+
 The `[currentPeriod]` directory name is a leftover from Nuxt's file-based routing; the file is just a normal component now.
 
 ### Components
@@ -57,7 +59,7 @@ The `[currentPeriod]` directory name is a leftover from Nuxt's file-based routin
 
 `findMatches(text, query)` in `assets/scripts.js` returns matching lines with line-relative ranges (case- and accent-insensitive, but å/ä/ö stay distinct; multi-word = AND on the same line). The query lives in the URL (`/?q=`, `/budget/:id?q=`).
 
-- Home: the field sits under the TopBar and starts scrolled out of view. A CSS scroll-driven animation (`view()` timeline inset by the 68px TopBar) fades it out under the transparent bar; browsers without scroll-driven animations (Firefox) just show it through the bar, and `index.html` has proximity scroll-snap to shown/hidden (`scroll-pt-[68px]` = TopBar height).
+- Home: the field sits under the TopBar and starts scrolled out of view. A CSS scroll-driven animation (`view()` timeline inset by the 68px TopBar) fades it out under the transparent bar; browsers without scroll-driven animations (Firefox) just show it through the bar. On touch release, JS projects where momentum will land (iOS deceleration) and snaps the field open (≤10% covered) or hides it with a 150ms ease-out. Momentum from a release while the field is hidden stops at the list top. Don't use CSS scroll-snap on the page: iOS WebKit disables momentum scrolling on snapping scrollers.
 - Ledger: a transparent-text mirror `<div>` behind the transparent textarea is painted with `CSS.highlights` / `::highlight(search)`, and hidden while the textarea is focused. It shares the textarea's exact text-box classes; `tests/e2e/search.spec.ts` pixel-diffs the two layers to guard alignment.
 
 ### UI

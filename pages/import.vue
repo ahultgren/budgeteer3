@@ -21,7 +21,7 @@
       </button>
     </p>
     <p>
-      <router-link to="/" class="font-semibold text-accent">Return to app</router-link>
+      <button type="button" class="font-semibold text-accent" @click="backToList()">Return to app</button>
     </p>
   </div>
 </template>
@@ -29,6 +29,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { usePeriodStore } from "~/stores/store";
+import { backToList } from "~/router";
 
 const store = usePeriodStore();
 const importedData = ref("");

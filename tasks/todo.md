@@ -26,6 +26,19 @@ Plan: ~/.prn-claude/plans/piped-humming-rabbit.md
 - Firefox has no CSS scroll-driven animations, so the field shows through the TopBar there. Tried a JS
   scroll listener, then reverted: Firefox is test-only, and the CSS version runs on the compositor
   with no JS. The `firefox` Playwright project covers filtering and ledger highlights, not the fade.
+- List scrolling felt sluggish on iPhone: CSS scroll-snap on `<html>` disables momentum scrolling in iOS
+  WebKit (https://bugs.webkit.org/show_bug.cgi?id=243582). Removed the snap. On the user's device
+  test, the open direction didn't work and the settle was too slow. The new rule: releasing with the field
+  partly covered snaps it open (≤10% covered) or hides it, immediately on touchend (or when momentum stops), with a 150ms rAF ease-out
+  instead of `behavior: "smooth"`. e2e asserts the root has no scroll-snap.
+- Intent from velocity: touchend measures finger velocity (last 100ms of touchmove) and projects the
+  momentum landing (UIScrollView 0.998/ms). A light flick down from the list top reveals; a release while
+  the field is hidden can't reveal it through momentum (stops at the list top). Known: on iOS that stop
+  flickers (JS clamps after the compositor paints the overshoot); accepted for now. The real fix would be
+  collapsing the field while hidden so the list top is the native scroll boundary.
+- Back navigation: "< Budgets" and "Return to app" pushed "/", dropping the query and growing history
+  (back could step into an old ledger). `backToList()` in router.ts uses router.back() when the
+  previous entry is the list (flagged so app.vue still plays the pop slide), else router.replace("/").
 - Not verifiable here: the iOS textarea inner-padding quirk. If highlights sit about 3px off on iPhone,
   add `supports-[-webkit-touch-callout:none]:px-[31px]` to the mirror.
 

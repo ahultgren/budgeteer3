@@ -41,7 +41,7 @@
     <!-- view() inset 68px = TopBar height, so the field fades out as it passes under the bar. -->
     <div
       ref="searchField"
-      class="snap-start px-4 pt-2 supports-[animation-timeline:view()]:animate-search-fade supports-[animation-timeline:view()]:[animation-timeline:view(68px_0px)] supports-[animation-timeline:view()]:[animation-range:exit]"
+      class="px-4 pt-2 supports-[animation-timeline:view()]:animate-search-fade supports-[animation-timeline:view()]:[animation-timeline:view(68px_0px)] supports-[animation-timeline:view()]:[animation-range:exit]"
     >
       <label class="flex h-9 items-center gap-1.5 rounded-xl bg-card px-2 text-muted">
         <Search :size="18" class="shrink-0" />
@@ -57,7 +57,7 @@
       </label>
     </div>
 
-    <div class="min-h-screen snap-start px-4 pt-4 pb-8">
+    <div class="min-h-screen px-4 pt-4 pb-8">
       <TransitionGroup
         tag="div"
         name="periods"
@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from "vue";
+import { computed, h, onMounted, onUnmounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   totalSpent,
@@ -166,9 +166,87 @@ const Highlighted = ({ text, ranges }: { text: string; ranges: [number, number][
     s.hit ? h("mark", { class: "rounded-sm bg-accent/30 text-ink" }, s.text) : s.text
   );
 
+// Settling the search field on release:
+// - Released while fully hidden (scrolling the list): momentum stops at the list top, never reveals it.
+// - Released partly covered: project where momentum would land. Past either end, momentum finishes on
+//   its own; partly covered, snap open if at most 10% covered, otherwise hide.
+// Not CSS scroll-snap: iOS WebKit disables momentum scrolling on snapping scrollers
+// (https://bugs.webkit.org/show_bug.cgi?id=243582). Not `behavior: "smooth"`: too slow.
 const searchField = ref<HTMLElement>();
+let touching = false;
+let touchSamples: { y: number; t: number }[] = [];
+let momentumFloor = 0;
+let settleTimer: ReturnType<typeof setTimeout> | undefined;
+let settleFrame = 0;
+
+// Momentum distance per px/ms of release velocity, from UIScrollView's 0.998/ms deceleration rate
+// (WWDC18 "Designing Fluid Interfaces").
+const MOMENTUM = 0.998 / (1 - 0.998);
+
+function settleSearchField(velocity = 0) {
+  const from = window.scrollY;
+  const height = searchField.value!.offsetHeight;
+  const landing = from + velocity * MOMENTUM;
+  if (touching || from <= 0 || from >= height || landing <= 0 || landing >= height) return;
+  const to = landing <= height * 0.1 ? 0 : height;
+  const start = performance.now();
+  const step = (now: number) => {
+    const t = Math.min((now - start) / 150, 1);
+    window.scrollTo(0, from + (to - from) * (1 - (1 - t) ** 3));
+    if (t < 1) settleFrame = requestAnimationFrame(step);
+  };
+  settleFrame = requestAnimationFrame(step);
+}
+
+function scheduleSettle(delay: number) {
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(settleSearchField, delay);
+}
+
+const listeners = {
+  scroll: () => {
+    if (!touching && momentumFloor > 0 && window.scrollY < momentumFloor) {
+      window.scrollTo(0, momentumFloor);
+      return;
+    }
+    scheduleSettle(100);
+  },
+  touchstart: () => {
+    touching = true;
+    touchSamples = [];
+    momentumFloor = 0;
+    clearTimeout(settleTimer);
+    cancelAnimationFrame(settleFrame);
+  },
+  touchmove: (e: TouchEvent) => {
+    touchSamples = touchSamples.filter((s) => s.t >= e.timeStamp - 100);
+    touchSamples.push({ y: e.touches[0].clientY, t: e.timeStamp });
+  },
+  touchend: (e: TouchEvent) => {
+    touching = false;
+    const recent = touchSamples.filter((s) => s.t >= e.timeStamp - 100);
+    const first = recent[0];
+    const last = recent.at(-1);
+    const fingerVelocity = first && last && last.t > first.t ? (last.y - first.y) / (last.t - first.t) : 0;
+    const height = searchField.value!.offsetHeight;
+    momentumFloor = window.scrollY >= height ? height : 0;
+    clearTimeout(settleTimer);
+    settleSearchField(-fingerVelocity);
+  },
+};
+
 onMounted(() => {
   window.scrollTo(0, searching.value ? 0 : searchField.value!.offsetHeight);
+  for (const [event, listener] of Object.entries(listeners)) {
+    window.addEventListener(event, listener as EventListener, { passive: true });
+  }
+});
+onUnmounted(() => {
+  clearTimeout(settleTimer);
+  cancelAnimationFrame(settleFrame);
+  for (const [event, listener] of Object.entries(listeners)) {
+    window.removeEventListener(event, listener as EventListener);
+  }
 });
 </script>
 

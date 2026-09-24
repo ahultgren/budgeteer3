@@ -29,6 +29,77 @@ test.describe("with the fixture", () => {
     await expect(searchField(page)).toHaveCSS("opacity", "1");
   });
 
+  test("a partly covered search field snaps open or hides when scrolling stops", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".budgetlist-item").first()).toBeVisible();
+    const height = await searchField(page).evaluate((el) => (el as HTMLElement).offsetHeight);
+    // CSS scroll-snap on the root kills momentum scrolling on iOS.
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollSnapType)).toBe("none");
+
+    for (const [covered, settled] of [[0.1, 0], [0.2, height], [0.9, height]]) {
+      await page.evaluate((y) => window.scrollTo(0, y), Math.floor(height * covered));
+      await expect.poll(() => scrollY(page)).toBe(settled);
+    }
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(400);
+    expect(await scrollY(page)).toBe(0);
+
+    await page.evaluate((y) => window.scrollTo(0, y), height + 20);
+    await page.waitForTimeout(400);
+    expect(await scrollY(page)).toBe(height + 20);
+  });
+
+  // Synthetic touch drag (Chromium only): the finger moves `finger` px (positive = down) over ~80ms
+  // while the page scrolls `from` → `to`, pauses, lifts, then momentum is simulated down to `momentumTo`.
+  async function drag(page: Page, o: { from: number; to: number; finger: number; pause?: number; momentumTo?: number }) {
+    await page.evaluate(async ({ from, to, finger, pause = 0, momentumTo }) => {
+      const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      const fire = (type: string, y: number) => {
+        const touch = new Touch({ identifier: 1, target: document.body, clientY: y });
+        const touches = type === "touchend" ? [] : [touch];
+        window.dispatchEvent(new TouchEvent(type, { touches, changedTouches: [touch] }));
+      };
+      window.scrollTo(0, from);
+      await sleep(50);
+      fire("touchstart", 300);
+      for (let i = 1; i <= 5; i++) {
+        await sleep(16);
+        window.scrollTo(0, from + ((to - from) * i) / 5);
+        fire("touchmove", 300 + (finger * i) / 5);
+      }
+      await sleep(pause);
+      fire("touchend", 300 + finger);
+      if (momentumTo === undefined) return;
+      for (let i = 1; i <= 5; i++) {
+        await sleep(16);
+        window.scrollTo(0, to + ((momentumTo - to) * i) / 5);
+      }
+    }, o);
+  }
+
+  test("touch release: flick down from the list top reveals, a slow release hides", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".budgetlist-item").first()).toBeVisible();
+    const height = await searchField(page).evaluate((el) => (el as HTMLElement).offsetHeight);
+
+    await drag(page, { from: height, to: height - 10, finger: 10, momentumTo: 0 });
+    await page.waitForTimeout(300);
+    expect(await scrollY(page)).toBe(0);
+
+    await drag(page, { from: height, to: height - 10, finger: 10, pause: 200 });
+    await expect.poll(() => scrollY(page)).toBe(height);
+  });
+
+  test("touch release: momentum from further down stops at the list top", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".budgetlist-item").first()).toBeVisible();
+    const height = await searchField(page).evaluate((el) => (el as HTMLElement).offsetHeight);
+
+    await drag(page, { from: height + 60, to: height + 40, finger: 20, momentumTo: 0 });
+    await expect.poll(() => scrollY(page)).toBe(height);
+  });
+
   test("filters periods and highlights the matching line", async ({ page }) => {
     await page.goto("/");
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -78,6 +149,37 @@ test.describe("with the fixture", () => {
     await expect(page).toHaveURL(/\/\?q=coffee$/);
     await expect(searchbox(page)).toHaveValue("coffee");
     await expect(searchField(page)).toHaveCSS("opacity", "1");
+  });
+
+  test("the Budgets button goes back like native back, without growing history", async ({ page }) => {
+    await page.goto("/?q=food");
+    const historyLength = () => page.evaluate(() => window.history.length);
+    const budgets = page.getByRole("button", { name: "Budgets" });
+
+    await page.getByRole("link", { name: /Trip/ }).click();
+    await expect(page).toHaveURL(/\/budget\/test-period-2\?q=food$/);
+    const length = await historyLength();
+
+    await budgets.click();
+    await expect(page.locator(".pop-leave-active")).toHaveCount(1);
+    await expect(page).toHaveURL(/\/\?q=food$/);
+    await expect(searchbox(page)).toHaveValue("food");
+
+    await page.getByRole("link", { name: /Groceries/ }).click();
+    await expect(page).toHaveURL(/\/budget\/test-period-1\?q=food$/);
+    await budgets.click();
+    await expect(page).toHaveURL(/\/\?q=food$/);
+    expect(await historyLength()).toBe(length);
+  });
+
+  test("the Budgets button on a deep link replaces it with the list", async ({ page }) => {
+    await page.goto("/budget/test-period-1");
+    await expect(page.locator('[class*="-enter-active"]')).toHaveCount(0);
+    const length = await page.evaluate(() => window.history.length);
+
+    await page.getByRole("button", { name: "Budgets" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    expect(await page.evaluate(() => window.history.length)).toBe(length);
   });
 
   test("search results", async ({ page }) => {

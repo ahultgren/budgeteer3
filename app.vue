@@ -17,6 +17,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { ToastProvider, ToastViewport } from "reka-ui";
 import Undo from "~/components/Undo.vue";
+import { consumeAnimateBack } from "~/router";
 
 // Only the budget detail (meta.slide) animates: it pushes in over the stationary
 // list, and pops back off it. Other navigations fade.
@@ -25,15 +26,15 @@ import Undo from "~/components/Undo.vue";
 // own native slide. There we use the "back" transition, which doesn't animate but
 // pushes the outgoing page behind (z-index) so it can't flash on top for a frame
 // when Safari reveals the live DOM at the end of its native animation. Our own slide
-// is only for in-app navigation (tapping a budget or the "< Budgets" button, both
-// router pushes). Vue Router tracks a monotonic `position` in history.state: it
+// is only for in-app navigation (tapping a budget, or the "< Budgets" button, whose
+// router.back() is flagged via backToList()). Vue Router tracks a monotonic `position` in history.state: it
 // decreases on back and increases on push, which distinguishes the two reliably
 // (a popstate listener races Vue Router's own and fires too late).
 const transition = ref("page");
 let lastPosition = (typeof window !== "undefined" && window.history.state?.position) || 0;
 useRouter().afterEach((to, from) => {
   const position = (typeof window !== "undefined" && window.history.state?.position) || 0;
-  const wentBack = position < lastPosition;
+  const wentBack = position < lastPosition && !consumeAnimateBack();
   lastPosition = position;
   if (wentBack) {
     transition.value = "back";
